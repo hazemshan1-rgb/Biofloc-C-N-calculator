@@ -655,6 +655,7 @@
   .ref-link { color: var(--primary); text-decoration: none; }
   .ref-link:hover { text-decoration: underline; }
 </style>
+<base target="_blank">
 </head>
 <body>
 
@@ -992,8 +993,16 @@
       <span class="metric-value" id="cTotal">0 g/day</span>
     </div>
     <div class="metric-row">
-      <span class="metric-label">Supplemental C required</span>
+      <span class="metric-label">Supplemental C required (maintenance)</span>
       <span class="metric-value" id="cSupp">0 g/day</span>
+    </div>
+    <div class="metric-row">
+      <span class="metric-label">Correction C for excess TAN</span>
+      <span class="metric-value warning" id="cCorrection">0 g (one-time)</span>
+    </div>
+    <div class="metric-row">
+      <span class="metric-label">Total C to dose today</span>
+      <span class="metric-value" id="cTotalDose">0 g total today</span>
     </div>
     <div class="metric-row">
       <span class="metric-label">N assimilated by bacteria (target)</span>
@@ -1081,7 +1090,7 @@
     <div class="card-title"><span class="card-title-icon">🦠</span>Biofloc Production</div>
     <div class="metric-row">
       <span class="metric-label">Bacterial biomass produced</span>
-      <span class="metric-value" id="biomass">0 g/day</span>
+      <span class="metric-value" id="biomass">0 g (today)</span>
     </div>
     <div class="metric-row">
       <span class="metric-label">TSS contribution per day</span>
@@ -1399,18 +1408,28 @@ function calculate(showToast) {
   const nWater = nFeed * excretion;                        // TAN excreted to water g/day
 
   // C from feed *available to heterotrophs* — conservative estimate
-  // Feed C in water = feed × DM × C-content × not-retained
-  // BUT most is respired by feed-decomposing microbes before being available
-  // Net available C ≈ feed × 0.9 (DM) × C_from_feedCN × 0.30 (residual after rapid respiration)
-  const feedCarbonFraction = (feedCN * 0.16);              // From C:N ratio: %C ≈ C:N × %N where %N = 0.16 × protein
-  const cFromFeed = feedG * 0.9 * feedCarbonFraction * 0.30;
+  // Feed C:N ratio gives total C relative to N: C_total = N_feed × feedCN
+  // After rapid initial respiration by feed-decomposing microbes, ~30% remains available to heterotrophs
+  const cFromFeedTotal = nFeed * feedCN;                   // total C in feed (g/day)
+  const cFromFeed = cFromFeedTotal * 0.30;                 // available after rapid respiration (g/day)
 
   // Total C needed for heterotrophic uptake of TAN
   const cTotal = nWater * cnTarget;
   const cSupp = Math.max(0, cTotal - cFromFeed);
 
-  // Source mass needed (kg/day)
-  const sourceKg = cSupp / source.fraction / 1000;
+  // Source mass needed (kg/day) — maintenance dose for today's feed N
+  const maintenanceKg = cSupp / source.fraction / 1000;
+
+  // TAN correction dose (for accumulated TAN above safe threshold of 1.0 mg/L)
+  const safeTan = 1.0;                                     // mg/L — chronic safe threshold for L. vannamei
+  const excessTan = Math.max(0, tan - safeTan);
+  const nExcess = excessTan * vol;                         // g N total above safe level (mg/L × m³ = g)
+  const cCorrection = nExcess * cnTarget;                  // g C needed to assimilate excess N
+  const correctionKg = cCorrection / source.fraction / 1000;
+
+  // Total dose = maintenance + correction
+  const totalKg = maintenanceKg + correctionKg;
+  const sourceKg = totalKg;                                // use total for all downstream calculations
   const sourceGperM3 = vol > 0 ? (sourceKg * 1000) / vol : 0;
 
   // N assimilated (assume 85% efficiency at adequate C:N)
@@ -1447,7 +1466,9 @@ function calculate(showToast) {
 
   // -------- Biofloc --------
   // Ebeling: VSS = 8.07 g per g N assimilated
-  const biomassG = nAssim * 8.07;
+  // Include both daily maintenance N and one-time correction N
+  const nAssimTotal = nAssim + (nExcess * 0.85);
+  const biomassG = nAssimTotal * 8.07;
   const biomassMgL = vol > 0 ? (biomassG / vol) : 0;
   const flocProtein = biomassG * 0.35;                     // ~35% protein in floc
 
@@ -1506,7 +1527,19 @@ function calculate(showToast) {
   // Hero dose
   document.getElementById('doseKg').textContent = sourceKg >= 0.01 ? sourceKg.toFixed(2) : '0';
   document.getElementById('doseName').textContent = sourceKg >= 0.01 ? 'kg of ' + source.name : 'No supplemental carbon needed';
-  document.getElementById('doseCost').textContent = `≈ ${curSym}${costToday.toFixed(2)} daily · ${sourceGperM3.toFixed(1)} g/m³`;
+
+  // Dose breakdown line
+  let doseBreakdown = '';
+  if (correctionKg > 0.01 && maintenanceKg > 0.01) {
+    doseBreakdown = `Maintenance ${maintenanceKg.toFixed(2)} kg + Correction ${correctionKg.toFixed(2)} kg`;
+  } else if (correctionKg > 0.01) {
+    doseBreakdown = `TAN correction ${correctionKg.toFixed(2)} kg only`;
+  } else if (maintenanceKg > 0.01) {
+    doseBreakdown = `Maintenance dose only`;
+  } else {
+    doseBreakdown = `Feed C sufficient — no supplemental carbon needed`;
+  }
+  document.getElementById('doseCost').innerHTML = `≈ ${curSym}${costToday.toFixed(2)} daily · ${sourceGperM3.toFixed(1)} g/m³<br><span style="opacity:0.85;font-size:0.78rem;margin-top:4px;display:block;">${doseBreakdown}</span>`;
 
   // Schedule
   buildSchedule(sourceKg, source.name, overall);
@@ -1517,10 +1550,12 @@ function calculate(showToast) {
   document.getElementById('cFeed').textContent = cFromFeed.toFixed(0) + ' g/day';
   document.getElementById('cTotal').textContent = cTotal.toFixed(0) + ' g/day';
   document.getElementById('cSupp').textContent = cSupp.toFixed(0) + ' g/day';
+  document.getElementById('cCorrection').textContent = cCorrection.toFixed(0) + ' g (one-time)';
+  document.getElementById('cTotalDose').textContent = (cSupp + cCorrection).toFixed(0) + ' g total today';
   document.getElementById('nAssim').textContent = nAssim.toFixed(0) + ' g/day';
   document.getElementById('nRemain').textContent = nRemain.toFixed(0) + ' g/day';
 
-  setAlert('nWarning', getNitrogenAdvice(cSupp, nRemain, nWater));
+  setAlert('nWarning', getNitrogenAdvice(cSupp, nRemain, nWater, correctionKg, nExcess, vol));
 
   // Toxicity
   document.getElementById('nh3Val').textContent = nh3.toFixed(3) + ' mg/L';
@@ -1595,7 +1630,11 @@ function setAlert(id, advice) {
 /* =========================================================
    ADVICE GENERATORS
    ========================================================= */
-function getNitrogenAdvice(cSupp, nRemain, nWater) {
+function getNitrogenAdvice(cSupp, nRemain, nWater, correctionKg, nExcess, vol) {
+  if (correctionKg > 0.01) {
+    const excessMgL = nExcess / vol;
+    return { type: 'warning', icon: '⚠️', title: 'TAN correction required', body: `Excess TAN of ${excessMgL.toFixed(1)} mg/L above safe needs ${correctionKg.toFixed(2)} kg carbon to reduce to ≤1.0 mg/L. Apply correction in first split, then maintenance.` };
+  }
   if (cSupp <= 0 && nWater > 0) {
     return { type: 'info', icon: 'ℹ️', title: 'Feed C is sufficient', body: 'Feed waste alone meets the C:N target. Skip dosing today but verify TAN at next test.' };
   }
@@ -1821,19 +1860,19 @@ function drawTrendChart(history) {
   if (!history.length) { svg.innerHTML = '<text x="300" y="50" text-anchor="middle" fill="#94a3b8" font-size="11">No data yet</text>'; return; }
   const data = history.slice(0, 14).reverse();
   const W = 600, H = 90, P = 6;
-  const maxTan = Math.max(2, ...data.map(d => d.inputs.tan));
-  const maxNo2 = Math.max(2, ...data.map(d => d.inputs.no2));
-  const maxDose = Math.max(1, ...data.map(d => d.results.sourceKg));
-  const max = Math.max(maxTan, maxNo2, maxDose);
+  const maxTan = Math.max(0.5, ...data.map(d => d.inputs.tan));
+  const maxNo2 = Math.max(0.5, ...data.map(d => d.inputs.no2));
+  const maxDose = Math.max(0.5, ...data.map(d => d.results.sourceKg));
 
   const stepX = data.length > 1 ? (W - 2*P) / (data.length - 1) : 0;
-  function path(arr, color) {
-    if (!arr.length) return '';
-    const pts = arr.map((v, i) => `${P + i*stepX},${H - P - (v / max) * (H - 2*P)}`).join(' L ');
+  function path(arr, maxVal, color) {
+    if (!arr.length || maxVal <= 0) return '';
+    const pts = arr.map((v, i) => `${P + i*stepX},${H - P - (v / maxVal) * (H - 2*P)}`).join(' L ');
     return `<path d="M ${pts}" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`;
   }
-  function dots(arr, color) {
-    return arr.map((v, i) => `<circle cx="${P + i*stepX}" cy="${H - P - (v / max) * (H - 2*P)}" r="2.5" fill="${color}"/>`).join('');
+  function dots(arr, maxVal, color) {
+    if (maxVal <= 0) return '';
+    return arr.map((v, i) => `<circle cx="${P + i*stepX}" cy="${H - P - (v / maxVal) * (H - 2*P)}" r="2.5" fill="${color}"/>`).join('');
   }
 
   const tanArr = data.map(d => d.inputs.tan);
@@ -1842,9 +1881,9 @@ function drawTrendChart(history) {
 
   svg.innerHTML = `
     <line x1="${P}" y1="${H-P}" x2="${W-P}" y2="${H-P}" stroke="#e2e8f0" stroke-width="1"/>
-    ${path(tanArr, '#dc2626')}${dots(tanArr, '#dc2626')}
-    ${path(no2Arr, '#ea580c')}${dots(no2Arr, '#ea580c')}
-    ${path(doseArr, '#0ea5e9')}${dots(doseArr, '#0ea5e9')}
+    ${path(tanArr, maxTan, '#dc2626')}${dots(tanArr, maxTan, '#dc2626')}
+    ${path(no2Arr, maxNo2, '#ea580c')}${dots(no2Arr, maxNo2, '#ea580c')}
+    ${path(doseArr, maxDose, '#0ea5e9')}${dots(doseArr, maxDose, '#0ea5e9')}
   `;
 }
 
