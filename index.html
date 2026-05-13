@@ -1434,7 +1434,7 @@ function calculate(showToast) {
 
   // N assimilated (assume 85% efficiency at adequate C:N)
   const nAssim = nWater * 0.85;
-  const nRemain = nWater - nAssim;
+  const nRemain = Math.max(0, nWater - nAssim);
 
   // -------- NH3 toxicity --------
   const nh3Frac = nh3Fraction(temp, ph, sal);
@@ -1580,7 +1580,7 @@ function calculate(showToast) {
   setAlert('o2Warning', getOxygenAdvice(o2DemandKg, aeratorH, doVal, o2DropMgL/peakHours));
 
   // Biofloc
-  document.getElementById('biomass').textContent = biomassG.toFixed(0) + ' g VSS/day';
+  document.getElementById('biomass').textContent = biomassG.toFixed(0) + ' g (today)';
   document.getElementById('tss').textContent = biomassMgL.toFixed(2) + ' mg/L/day';
   document.getElementById('flocProtein').textContent = flocProtein.toFixed(0) + ' g/day';
 
@@ -1633,7 +1633,11 @@ function setAlert(id, advice) {
 function getNitrogenAdvice(cSupp, nRemain, nWater, correctionKg, nExcess, vol) {
   if (correctionKg > 0.01) {
     const excessMgL = nExcess / vol;
-    return { type: 'warning', icon: '⚠️', title: 'TAN correction required', body: `Excess TAN of ${excessMgL.toFixed(1)} mg/L above safe needs ${correctionKg.toFixed(2)} kg carbon to reduce to ≤1.0 mg/L. Apply correction in first split, then maintenance.` };
+    let body = `Excess TAN of ${excessMgL.toFixed(1)} mg/L above safe needs ${correctionKg.toFixed(2)} kg carbon to reduce to ≤1.0 mg/L. Apply correction in first split, then maintenance.`;
+    if (nRemain === 0) {
+      body += ' Correction dose exceeds today's N load — excess carbon will be respired as CO₂.';
+    }
+    return { type: 'warning', icon: '⚠️', title: 'TAN correction required', body: body };
   }
   if (cSupp <= 0 && nWater > 0) {
     return { type: 'info', icon: 'ℹ️', title: 'Feed C is sufficient', body: 'Feed waste alone meets the C:N target. Skip dosing today but verify TAN at next test.' };
@@ -1690,17 +1694,25 @@ function buildActionPlan(overall, tan, nh3, no2, doVal, alk, ph, doseKg, sourceN
   const a = [];
   if (overall === "CRITICAL") {
     a.push("STOP feeding immediately. Resume at 50% only after parameters stabilise.");
-    if (doVal < 3) a.push("Maximise aeration NOW — every aerator at full power.");
-    if (nh3.level === "CRITICAL") a.push("Begin emergency water exchange 20-30% with clean replacement water.");
-    if (no2.level === "CRITICAL") a.push("Dose chloride (NaCl) at 6:1 Cl:NO₂ ratio if salinity allows — protects against methemoglobinaemia.");
-    a.push(`Apply double carbon dose: ${(doseKg*2).toFixed(2)} kg of ${sourceName} in 4 equal splits over 12 hours.`);
+    if (doVal < 3) {
+      a.push("Maximise aeration NOW — every aerator at full power.");
+      a.push("DO is below survival threshold — DO NOT dose carbon yet. Fix oxygen first (aeration + water exchange). Resume carbon only after DO recovers above 4.0 mg/L.");
+    } else {
+      if (nh3.level === "CRITICAL") a.push("Begin emergency water exchange 20-30% with clean replacement water.");
+      if (no2.level === "CRITICAL") a.push("Dose chloride (NaCl) at 6:1 Cl:NO₂ ratio if salinity allows — protects against methemoglobinaemia.");
+      a.push(`Apply double carbon dose: ${(doseKg*2).toFixed(2)} kg of ${sourceName} in 4 equal splits over 12 hours.`);
+    }
     if (alk < 80) a.push(`Add NaHCO₃ to lift alkalinity to 140+ mg/L immediately.`);
     a.push("Inspect for mortality every 2 h. If mortality >5%, prepare emergency harvest.");
     a.push("Notify farm manager. Sample for pathogens if symptoms persist.");
   } else if (overall === "HIGH") {
     a.push("Reduce feed by 30-50% for the next 24 hours.");
-    a.push(`Apply carbon dose: ${doseKg.toFixed(2)} kg ${sourceName} in 3 splits (06:00, 12:00, 18:00).`);
-    a.push("Increase aeration 30 min before each dose. Hold at 100% for 4 h after.");
+    if (doVal >= 3) {
+      a.push(`Apply carbon dose: ${doseKg.toFixed(2)} kg ${sourceName} in 3 splits (06:00, 12:00, 18:00).`);
+      a.push("Increase aeration 30 min before each dose. Hold at 100% for 4 h after.");
+    } else {
+      a.push("DO is low — hold carbon dosing until DO recovers above 4.0 mg/L.");
+    }
     if (alk < 100) a.push("Add NaHCO₃ to reach alkalinity 140 mg/L.");
     a.push("Re-test water at 4 h and 12 h. Re-run calculator with new values.");
   }
