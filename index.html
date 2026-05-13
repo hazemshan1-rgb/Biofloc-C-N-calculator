@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biofloc C:N Calculator | Hazem Shannak</title>
+    <style>
+        :root {
+            --primary: #0ea5e9;
+            --primary-dark: #0284c7;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --success: #10b981;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #1e293b;
+            --text-light: #64748b;
+            --border: #e2e8f0;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+            padding: 16px;
+        }
+        .container { max-width: 720px; margin: 0 auto; }
+        
+        /* Header */
+        .brand {
+            text-align: center;
+            padding: 24px 0 16px;
+        }
+        .brand h1 { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.5px; }
+        .brand p { color: var(--text-light); font-size: 0.875rem; margin-top: 4px; }
+        .badge {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 3px 8px;
+            border-radius: 999px;
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+        }
+
+        /* Risk Bar */
+        .risk-bar {
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 20px;
+            color: white;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.3s ease;
+        }
+        .risk-low { background: linear-gradient(135deg, var(--success), #059669); }
+        .risk-moderate { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+        .risk-high { background: linear-gradient(135deg, var(--warning), #d97706); }
+        .risk-critical { background: linear-gradient(135deg, var(--danger), #b91c1c); animation: pulse 2s infinite; }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.85} }
+        .risk-label { font-size: 0.75rem; opacity: 0.9; text-transform: uppercase; letter-spacing: 1px; }
+        .risk-value { font-size: 1.25rem; }
+
+        /* Cards */
+        .card {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            border: 1px solid var(--border);
+        }
+        .card-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Inputs */
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+        @media (max-width: 480px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+        
+        .input-group { margin-bottom: 12px; }
+        .input-group label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--text-light);
+            margin-bottom: 4px;
+        }
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            color: var(--text);
+            background: #fff;
+            transition: border 0.2s;
+        }
+        .input-group input:focus, .input-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(14,165,233,0.1);
+        }
+
+        /* Results */
+        .result-hero {
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            color: white;
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            margin-bottom: 16px;
+        }
+        .result-hero .label { font-size: 0.75rem; opacity: 0.7; text-transform: uppercase; letter-spacing: 1px; }
+        .result-hero .value { font-size: 2.5rem; font-weight: 700; margin: 4px 0; }
+        .result-hero .unit { font-size: 0.875rem; opacity: 0.8; }
+        .result-hero .schedule {
+            margin-top: 12px;
+            padding: 10px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            font-size: 0.875rem;
+        }
+
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .metric-row:last-child { border-bottom: none; }
+        .metric-label { font-size: 0.875rem; color: var(--text-light); }
+        .metric-value { font-size: 0.875rem; font-weight: 600; }
+        .metric-value.warning { color: var(--warning); }
+        .metric-value.danger { color: var(--danger); }
+        .metric-value.success { color: var(--success); }
+
+        .warning-box {
+            background: #fff7ed;
+            border-left: 4px solid var(--warning);
+            padding: 12px;
+            border-radius: 0 8px 8px 0;
+            margin-top: 12px;
+            font-size: 0.875rem;
+            color: #9a3412;
+        }
+        .danger-box {
+            background: #fef2f2;
+            border-left: 4px solid var(--danger);
+            color: #991b1b;
+        }
+        .info-box {
+            background: #eff6ff;
+            border-left: 4px solid var(--primary);
+            color: #1e40af;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: background 0.2s;
+        }
+        .btn:hover { background: var(--primary-dark); }
+
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Brand -->
+        <div class="brand">
+            <div class="badge">Beta v1.0</div>
+            <h1>Biofloc C:N Calculator</h1>
+            <p>By Hazem Shannak · Regenerative Seawater Aquaculture</p>
+        </div>
+
+        <!-- Risk Dashboard -->
+        <div id="riskBar" class="risk-bar risk-low">
+            <div>
+                <div class="risk-label">System Status</div>
+                <div class="risk-value" id="riskText">LOW RISK</div>
+            </div>
+            <div style="text-align:right;font-size:0.75rem;opacity:0.9;">
+                <div>TAN: <span id="riskTan">SAFE</span></div>
+                <div>NO₂: <span id="riskNo2">SAFE</span></div>
+                <div>DO: <span id="riskDo">OK</span></div>
+                <div>ALK: <span id="riskAlk">OK</span></div>
+            </div>
+        </div>
+
+        <!-- Inputs -->
+        <div class="card">
+            <div class="card-title">🌊 Pond & Water</div>
+            <div class="grid-2">
+                <div class="input-group">
+                    <label>Pond Volume (m³)</label>
+                    <input type="number" id="vol" value="1000" min="1" step="10">
+                </div>
+                <div class="input-group">
+                    <label>Water Temp (°C)</label>
+                    <input type="number" id="temp" value="28" min="10" max="40">
+                </div>
+            </div>
+            <div class="grid-3">
+                <div class="input-group">
+                    <label>TAN (mg/L)</label>
+                    <input type="number" id="tan" value="1.5" min="0" step="0.1">
+                </div>
+                <div class="input-group">
+                    <label>Nitrite (mg/L)</label>
+                    <input type="number" id="no2" value="0.5" min="0" step="0.1">
+                </div>
+                <div class="input-group">
+                    <label>DO (mg/L)</label>
+                    <input type="number" id="do" value="5.0" min="0" step="0.1">
+                </div>
+            </div>
+            <div class="grid-2">
+                <div class="input-group">
+                    <label>Alkalinity (mg/L CaCO₃)</label>
+                    <input type="number" id="alk" value="90" min="0" step="5">
+                </div>
+                <div class="input-group">
+                    <label>pH</label>
+                    <input type="number" id="ph" value="7.5" min="6" max="10" step="0.1">
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">🍤 Feed Input</div>
+            <div class="grid-2">
+                <div class="input-group">
+                    <label>Daily Feed (kg/day)</label>
+                    <input type="number" id="feed" value="40" min="0" step="1">
+                </div>
+                <div class="input-group">
+                    <label>Feed Protein (%)</label>
+                    <input type="number" id="protein" value="35" min="15" max="50">
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">⚙️ Targets & Source</div>
+            <div class="grid-2">
+                <div class="input-group">
+                    <label>Target C:N Ratio</label>
+                    <select id="cnRatio">
+                        <option value="20">20:1 (Startup/High floc)</option>
+                        <option value="15" selected>15:1 (Standard startup)</option>
+                        <option value="12">12:1 (Balanced)</option>
+                        <option value="10">10:1 (Maintenance)</option>
+                        <option value="6">6:1 (Mature system)</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Carbon Source</label>
+                    <select id="carbonSource">
+                        <option value="molasses">Molasses (22% C)</option>
+                        <option value="sugar">Sugar/Sucrose (42% C)</option>
+                        <option value="tapioca">Tapioca Starch (46% C)</option>
+                        <option value="corn">Corn Starch (44% C)</option>
+                        <option value="rice_bran">Rice Bran (35% C)</option>
+                        <option value="wheat">Wheat Flour (40% C)</option>
+                        <option value="jaggery">Jaggery (40% C)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="grid-2">
+                <div class="input-group">
+                    <label>Target Alkalinity (mg/L)</label>
+                    <input type="number" id="targetAlk" value="120" min="50" max="200">
+                </div>
+                <div class="input-group">
+                    <label>TAN Target for Correction (mg/L)</label>
+                    <input type="number" id="targetTan" value="0.5" min="0.1" max="2" step="0.1">
+                </div>
+            </div>
+        </div>
+
+        <button class="btn" onclick="calculate()">Calculate Dose</button>
+
+        <!-- Results -->
+        <div id="results" class="hidden" style="margin-top: 16px;">
+            
+            <!-- Hero Dose -->
+            <div class="result-hero">
+                <div class="label">Today's Carbon Dose</div>
+                <div class="value" id="doseKg">0</div>
+                <div class="unit" id="doseName">kg of Molasses</div>
+                <div class="schedule" id="schedule">No supplemental carbon needed.</div>
+            </div>
+
+            <!-- Nitrogen Budget -->
+            <div class="card">
+                <div class="card-title">📊 Nitrogen Budget</div>
+                <div class="metric-row">
+                    <span class="metric-label">N Load from Feed</span>
+                    <span class="metric-value" id="nLoad">0 g/day</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">C from Feed Waste</span>
+                    <span class="metric-value" id="cFeed">0 g/day</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Total C Needed</span>
+                    <span class="metric-value" id="cTotal">0 g/day</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Supplemental C Needed</span>
+                    <span class="metric-value" id="cSupp">0 g/day</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">N Assimilated (est.)</span>
+                    <span class="metric-value success" id="nAssim">0 g/day</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">N Remaining (est.)</span>
+                    <span class="metric-value warning" id="nRemain">0 g/day</span>
+                </div>
+                <div id="nWarning" class="warning-box hidden"></div>
+            </div>
+
+            <!-- Alkalinity -->
+            <div class="card">
+                <div class="card-title">⚗️ Alkalinity Management</div>
+                <div class="metric-row">
+                    <span class="metric-label">Current Alkalinity</span>
+                    <span class="metric-value" id="alkCurrent">0 mg/L</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Deficit</span>
+                    <span class="metric-value" id="alkDeficit">0 mg/L</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">NaHCO₃ Needed Now</span>
+                    <span class="metric-value" id="alkDose">0 kg</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Daily Maintenance (SRAC)</span>
+                    <span class="metric-value" id="alkMaint">0 kg/day</span>
+                </div>
+                <div id="alkWarning" class="warning-box hidden"></div>
+            </div>
+
+            <!-- Oxygen Impact -->
+            <div class="card">
+                <div class="card-title">💨 Oxygen Impact</div>
+                <div class="metric-row">
+                    <span class="metric-label">O₂ Demand from Carbon</span>
+                    <span class="metric-value" id="o2Demand">0 kg</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Predicted DO After Dosing</span>
+                    <span class="metric-value" id="o2After">0 mg/L</span>
+                </div>
+                <div id="o2Warning" class="warning-box hidden"></div>
+            </div>
+
+            <!-- Biofloc -->
+            <div class="card">
+                <div class="card-title">🦠 Biofloc Production</div>
+                <div class="metric-row">
+                    <span class="metric-label">Bacterial Biomass (est.)</span>
+                    <span class="metric-value" id="biomass">0 g/day</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">TSS Contribution (est.)</span>
+                    <span class="metric-value" id="tss">0 mg/L</span>
+                </div>
+            </div>
+
+            <!-- Emergency Actions -->
+            <div id="emergencyCard" class="card hidden">
+                <div class="card-title">🚨 Emergency Actions</div>
+                <ul id="emergencyList" style="padding-left: 18px; font-size: 0.875rem; line-height: 1.8;"></ul>
+            </div>
+
+        </div>
+
+        <div style="text-align:center; padding: 24px 0; color: var(--text-light); font-size: 0.75rem;">
+            Based on Avnimelech (2009), SRAC 4503, Boyd & Hargreaves.<br>
+            For educational use. Verify with your farm manager.
+        </div>
+    </div>
+
+    <script>
+        // Carbon source database
+        const CARBON_SOURCES = {
+            molasses: { name: "Molasses", fraction: 0.22, density: 1.40 },
+            sugar: { name: "Sugar (Sucrose)", fraction: 0.42, density: null },
+            tapioca: { name: "Tapioca Starch", fraction: 0.46, density: null },
+            corn: { name: "Corn Starch", fraction: 0.44, density: null },
+            rice_bran: { name: "Rice Bran", fraction: 0.35, density: null },
+            wheat: { name: "Wheat Flour", fraction: 0.40, density: null },
+            jaggery: { name: "Jaggery", fraction: 0.40, density: null }
+        };
+
+        // Risk thresholds
+        const THRESHOLDS = {
+            tan: { safe: 1.0, warning: 2.0, critical: 4.0 },
+            no2: { safe: 1.0, warning: 2.5, critical: 5.0 },
+            doMin: 4.0,
+            alkMin: 80.0
+        };
+
+        function getParamStatus(val, safe, warning, critical) {
+            if (val >= critical) return "CRITICAL";
+            if (val >= warning) return "WARNING";
+            if (val >= safe) return "ELEVATED";
+            return "SAFE";
+        }
+
+        function calculate() {
+            // Inputs
+            const vol = parseFloat(document.getElementById('vol').value) || 0;
+            const tan = parseFloat(document.getElementById('tan').value) || 0;
+            const no2 = parseFloat(document.getElementById('no2').value) || 0;
+            const doVal = parseFloat(document.getElementById('do').value) || 0;
+            const alk = parseFloat(document.getElementById('alk').value) || 0;
+            const ph = parseFloat(document.getElementById('ph').value) || 7;
+            const feed = parseFloat(document.getElementById('feed').value) || 0;
+            const protein = parseFloat(document.getElementById('protein').value) || 35;
+            const cnTarget = parseFloat(document.getElementById('cnRatio').value) || 15;
+            const sourceKey = document.getElementById('carbonSource').value;
+            const targetAlk = parseFloat(document.getElementById('targetAlk').value) || 120;
+            const targetTan = parseFloat(document.getElementById('targetTan').value) || 0.5;
+
+            const source = CARBON_SOURCES[sourceKey];
+
+            // ========== RISK ASSESSMENT ==========
+            let riskLevel = "LOW";
+            let actions = [];
+
+            if (tan >= THRESHOLDS.tan.critical || no2 >= THRESHOLDS.no2.critical || doVal < 3.0) {
+                riskLevel = "CRITICAL";
+                actions.push("STOP feeding immediately.");
+                actions.push("Add emergency carbon dose (double normal).");
+                actions.push("Increase aeration to maximum.");
+                actions.push("Check for mortality. Prepare for partial harvest if mortality >5%.");
+            } else if (tan >= THRESHOLDS.tan.warning || no2 >= THRESHOLDS.no2.warning || doVal < THRESHOLDS.doMin || alk < THRESHOLDS.alkMin) {
+                riskLevel = "HIGH";
+                actions.push("Reduce feed by 25-50%.");
+                actions.push("Add carbon dose immediately (split in 3 applications).");
+                actions.push("Increase aeration monitoring.");
+                actions.push("Test water again in 4 hours.");
+            } else if (tan >= THRESHOLDS.tan.safe || no2 >= THRESHOLDS.no2.safe) {
+                riskLevel = "MODERATE";
+                actions.push("Maintain current C:N dosing.");
+                actions.push("Monitor twice daily.");
+            } else {
+                actions.push("System stable. Maintain routine.");
+            }
+
+            // Update risk bar
+            const riskBar = document.getElementById('riskBar');
+            riskBar.className = 'risk-bar';
+            if (riskLevel === "CRITICAL") riskBar.classList.add('risk-critical');
+            else if (riskLevel === "HIGH") riskBar.classList.add('risk-high');
+            else if (riskLevel === "MODERATE") riskBar.classList.add('risk-moderate');
+            else riskBar.classList.add('risk-low');
+            
+            document.getElementById('riskText').textContent = riskLevel + " RISK";
+            document.getElementById('riskTan').textContent = getParamStatus(tan, THRESHOLDS.tan.safe, THRESHOLDS.tan.warning, THRESHOLDS.tan.critical);
+            document.getElementById('riskNo2').textContent = getParamStatus(no2, THRESHOLDS.no2.safe, THRESHOLDS.no2.warning, THRESHOLDS.no2.critical);
+            document.getElementById('riskDo').textContent = doVal < THRESHOLDS.doMin ? "LOW" : "OK";
+            document.getElementById('riskAlk').textContent = alk < THRESHOLDS.alkMin ? "LOW" : "OK";
+
+            // ========== NITROGEN & CARBON CALCULATIONS ==========
+            // N load from feed (g/day)
+            const feedG = feed * 1000;
+            const nLoad = feedG * (protein / 100) / 6.25 * 0.5; // 50% excretion factor
+            
+            // Carbon from feed waste (g/day)
+            // dry matter 90% * waste 70% * carbon in waste 50%
+            const cFromFeed = feedG * 0.9 * 0.7 * 0.5;
+            
+            // Total C needed
+            const cTotal = nLoad * cnTarget;
+            
+            // Supplemental C
+            const cSupp = Math.max(0, cTotal - cFromFeed);
+            
+            // Source mass
+            const sourceMassKg = cSupp / source.fraction / 1000;
+            
+            // Nitrogen budget (assuming 80% assimilation at target C:N)
+            const nAssimilated = nLoad * 0.8;
+            const nRemaining = nLoad - nAssimilated;
+
+            // ========== ALKALINITY ==========
+            const alkDeficit = Math.max(0, targetAlk - alk);
+            const naHco3Kg = alkDeficit * vol * 1.5 / 1000; // practical factor
+            const alkMaint = feed * 0.25; // SRAC 4503: 0.25 kg per kg feed
+
+            // ========== OXYGEN ==========
+            const o2DemandKg = sourceMassKg * source.fraction * 1.07;
+            const o2DemandMgL = (o2DemandKg * 1000) / (vol * 1000);
+            const o2After = doVal - o2DemandMgL;
+
+            // ========== BIOFLOC BIOMASS ==========
+            const biomassG = nAssimilated / 0.10; // bacteria ~10% N
+            const biomassMgL = (biomassG * 1000) / (vol * 1000);
+
+            // ========== UPDATE UI ==========
+            document.getElementById('results').classList.remove('hidden');
+
+            // Hero dose
+            document.getElementById('doseKg').textContent = sourceMassKg > 0 ? sourceMassKg.toFixed(2) : "0";
+            document.getElementById('doseName').textContent = sourceMassKg > 0 ? "kg of " + source.name : "No carbon needed";
+            
+            let schedule = "No supplemental carbon needed today. Feed alone maintains C:N ratio.";
+            if (sourceMassKg > 0) {
+                if (sourceMassKg <= 2) schedule = `Add ${sourceMassKg.toFixed(2)} kg in 2 splits: 08:00 and 16:00`;
+                else if (sourceMassKg <= 10) schedule = `Add ${sourceMassKg.toFixed(2)} kg in 3 splits: 08:00, 12:00, 16:00`;
+                else schedule = `Add ${sourceMassKg.toFixed(2)} kg in 4 splits: 06:00, 10:00, 14:00, 18:00`;
+            }
+            if (riskLevel === "CRITICAL" || riskLevel === "HIGH") {
+                schedule += " ⚠️ Increase aeration 30 min BEFORE first dose.";
+            }
+            document.getElementById('schedule').textContent = schedule;
+
+            // Nitrogen budget
+            document.getElementById('nLoad').textContent = nLoad.toFixed(1) + " g/day";
+            document.getElementById('cFeed').textContent = cFromFeed.toFixed(1) + " g/day";
+            document.getElementById('cTotal').textContent = cTotal.toFixed(1) + " g/day";
+            document.getElementById('cSupp').textContent = cSupp.toFixed(1) + " g/day";
+            document.getElementById('nAssim').textContent = nAssimilated.toFixed(1) + " g/day";
+            document.getElementById('nRemain').textContent = nRemaining.toFixed(1) + " g/day";
+
+            const nWarn = document.getElementById('nWarning');
+            if (nRemaining > 200) {
+                nWarn.classList.remove('hidden');
+                nWarn.className = 'warning-box';
+                nWarn.textContent = "High residual nitrogen predicted. Consider increasing C:N ratio or reducing feed protein.";
+            } else if (cSupp <= 0 && nLoad > 0) {
+                nWarn.classList.remove('hidden');
+                nWarn.className = 'info-box';
+                nWarn.textContent = "Feed waste provides sufficient carbon. Monitor TAN to confirm.";
+            } else {
+                nWarn.classList.add('hidden');
+            }
+
+            // Alkalinity
+            document.getElementById('alkCurrent').textContent = alk.toFixed(0) + " mg/L";
+            document.getElementById('alkDeficit').textContent = alkDeficit.toFixed(0) + " mg/L";
+            document.getElementById('alkDose').textContent = naHco3Kg.toFixed(2) + " kg";
+            document.getElementById('alkMaint').textContent = alkMaint.toFixed(2) + " kg/day";
+
+            const alkWarn = document.getElementById('alkWarning');
+            if (alk < THRESHOLDS.alkMin) {
+                alkWarn.classList.remove('hidden');
+                alkWarn.className = 'warning-box danger-box';
+                alkWarn.textContent = `CRITICAL: Alkalinity ${alk} is below safe minimum (80). pH crash risk. Add ${naHco3Kg.toFixed(1)} kg NaHCO₃ immediately.`;
+            } else if (alk < targetAlk * 0.75) {
+                alkWarn.classList.remove('hidden');
+                alkWarn.className = 'warning-box';
+                alkWarn.textContent = `Alkalinity low. Add ${naHco3Kg.toFixed(1)} kg NaHCO₃ today and recheck in 24h.`;
+            } else {
+                alkWarn.classList.add('hidden');
+            }
+
+            // Oxygen
+            document.getElementById('o2Demand').textContent = o2DemandKg.toFixed(2) + " kg";
+            document.getElementById('o2After').textContent = o2After.toFixed(2) + " mg/L";
+
+            const o2Warn = document.getElementById('o2Warning');
+            if (o2After < THRESHOLDS.doMin) {
+                o2Warn.classList.remove('hidden');
+                o2Warn.className = 'warning-box danger-box';
+                o2Warn.textContent = `CRITICAL: Carbon addition will drop DO to ${o2After.toFixed(1)} mg/L. Increase aeration BEFORE dosing.`;
+            } else if (o2DemandKg > 5) {
+                o2Warn.classList.remove('hidden');
+                o2Warn.className = 'warning-box';
+                o2Warn.textContent = "Significant oxygen demand. Ensure aerators at 100% for 4h after dosing.";
+            } else {
+                o2Warn.classList.add('hidden');
+            }
+
+            // Biofloc
+            document.getElementById('biomass').textContent = biomassG.toFixed(0) + " g/day";
+            document.getElementById('tss').textContent = biomassMgL.toFixed(2) + " mg/L";
+
+            // Emergency actions
+            const emCard = document.getElementById('emergencyCard');
+            const emList = document.getElementById('emergencyList');
+            if (riskLevel === "CRITICAL" || riskLevel === "HIGH") {
+                emCard.classList.remove('hidden');
+                emList.innerHTML = actions.map(a => `<li>${a}</li>`).join('');
+            } else {
+                emCard.classList.add('hidden');
+            }
+        }
+
+        // Auto-calculate on load with defaults
+        window.onload = calculate;
+    </script>
+</body>
+</html>
