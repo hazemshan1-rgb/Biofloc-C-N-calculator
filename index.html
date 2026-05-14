@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -1635,7 +1635,7 @@ function getNitrogenAdvice(cSupp, nRemain, nWater, correctionKg, nExcess, vol) {
     const excessMgL = nExcess / vol;
     let body = `Excess TAN of ${excessMgL.toFixed(1)} mg/L above safe needs ${correctionKg.toFixed(2)} kg carbon to reduce to ≤1.0 mg/L. Apply correction in first split, then maintenance.`;
     if (nRemain === 0) {
-      body += ' Correction dose exceeds today's N load — excess carbon will be respired as CO₂.';
+      body += ' Correction dose exceeds today\'s N load — excess carbon will be respired as CO₂.';
     }
     return { type: 'warning', icon: '⚠️', title: 'TAN correction required', body: body };
   }
