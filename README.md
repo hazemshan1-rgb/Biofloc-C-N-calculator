@@ -1,4 +1,4 @@
-# 🦠 Biofloc C:N & Alkalinity Calculator
+# 🦠 Shrimp Biofloc C:N & Alkalinity Calculator
 
 > **Stop guessing. Start dosing.**  
 > A free, research-backed calculator for biofloc shrimp farmers who are tired of ammonia spikes, pH crashes, and dead crops.
