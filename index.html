@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#0c4a6e">
 <meta name="description" content="Professional C:N ratio calculator for shrimp biofloc systems. Verified formulas for carbon dosing, nitrogen balance, NH3 toxicity, alkalinity and oxygen demand.">
-<title>Biofloc C:N Calculator Pro v2.0 | Hazem Shannak</title>
+<title>Biofloc C:N Calculator Pro v3.0 | Hazem Shannak</title>
 <style>
   :root {
     --primary: #0c4a6e;
@@ -55,7 +55,6 @@
   }
   .container { max-width: 780px; margin: 0 auto; padding: 0 14px; }
 
-  /* Top bar */
   .topbar {
     background: linear-gradient(135deg, var(--primary-dark), var(--primary));
     color: white;
@@ -75,9 +74,7 @@
   }
   .topbar-inner { max-width: 780px; margin: 0 auto; position: relative; }
   .brand-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-  .brand-mark {
-    display: flex; align-items: center; gap: 10px;
-  }
+  .brand-mark { display: flex; align-items: center; gap: 10px; }
   .brand-icon {
     width: 38px; height: 38px;
     background: rgba(255,255,255,0.15);
@@ -86,12 +83,7 @@
     font-size: 18px;
     backdrop-filter: blur(8px);
   }
-  .brand-text h1 {
-    font-size: 1.05rem;
-    font-weight: 700;
-    letter-spacing: -0.3px;
-    line-height: 1.2;
-  }
+  .brand-text h1 { font-size: 1.05rem; font-weight: 700; letter-spacing: -0.3px; line-height: 1.2; }
   .brand-text .sub { font-size: 0.7rem; opacity: 0.75; margin-top: 2px; }
   .version-pill {
     background: rgba(255,255,255,0.18);
@@ -104,7 +96,6 @@
     backdrop-filter: blur(8px);
   }
 
-  /* Tabs */
   .tabs {
     display: flex;
     gap: 4px;
@@ -137,14 +128,10 @@
     justify-content: center;
     white-space: nowrap;
   }
-  .tab-btn.active {
-    background: var(--primary);
-    color: white;
-  }
+  .tab-btn.active { background: var(--primary); color: white; }
   .tab-btn:not(.active):hover { background: var(--border); color: var(--text); }
   .tab-icon { font-size: 1rem; }
 
-  /* Risk bar - sticky */
   .risk-bar {
     margin: 14px 0 18px;
     border-radius: var(--radius);
@@ -171,7 +158,6 @@
   .risk-critical { background: linear-gradient(135deg, #dc2626, #991b1b); animation: pulse-bg 1.6s infinite; }
   @keyframes pulse-bg { 0%,100% { box-shadow: 0 0 0 0 rgba(220,38,38,0.5); } 50% { box-shadow: 0 0 0 12px rgba(220,38,38,0); } }
 
-  /* Cards */
   .card {
     background: var(--card);
     border-radius: var(--radius);
@@ -202,7 +188,73 @@
     color: var(--primary);
   }
 
-  /* Inputs */
+  /* NEW: Interpretation sections */
+  .interpretation {
+    background: var(--bg);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin: 12px 0;
+    border-left: 3px solid var(--primary-light);
+  }
+  .interpretation-title {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .interpretation-text {
+    font-size: 0.85rem;
+    color: var(--text-light);
+    line-height: 1.6;
+  }
+  .interpretation-text strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  /* NEW: Action bullet points */
+  .action-list {
+    background: var(--bg);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin: 12px 0;
+    border-left: 3px solid var(--success);
+  }
+  .action-list-title {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--success);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .action-list ul {
+    padding-left: 18px;
+    margin: 0;
+  }
+  .action-list li {
+    font-size: 0.85rem;
+    color: var(--text-light);
+    line-height: 1.7;
+    margin-bottom: 4px;
+  }
+  .action-list li strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+  .action-list .ref-note {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 8px;
+    font-style: italic;
+    border-top: 1px dashed var(--border);
+    padding-top: 6px;
+  }
+
   .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
   @media (max-width: 480px) {
@@ -269,7 +321,6 @@
   }
   .input-group.has-suffix input { padding-right: 50px; }
 
-  /* Quick links / Production stage chips */
   .chips {
     display: flex;
     flex-wrap: wrap;
@@ -294,7 +345,6 @@
   }
   .chip:hover:not(.active) { border-color: var(--primary-light); color: var(--primary); }
 
-  /* Buttons */
   .btn-row { display: flex; gap: 10px; margin-top: 8px; }
   .btn {
     flex: 1;
@@ -337,7 +387,6 @@
   }
   .btn-icon:hover { border-color: var(--primary); color: var(--primary); }
 
-  /* Floating action bar */
   .action-bar {
     position: fixed;
     bottom: 0; left: 0; right: 0;
@@ -350,7 +399,6 @@
   }
   .action-bar-inner { max-width: 780px; margin: 0 auto; display: flex; gap: 10px; }
 
-  /* Hero dose */
   .dose-hero {
     background: linear-gradient(135deg, var(--primary-dark), var(--primary));
     color: white;
@@ -397,7 +445,6 @@
   }
   .split-time { font-weight: 700; }
 
-  /* Metrics */
   .metric-row {
     display: flex;
     justify-content: space-between;
@@ -414,7 +461,6 @@
   .metric-value.success { color: var(--success); }
   .metric-value.caution { color: var(--caution); }
 
-  /* Status badges */
   .badge-status {
     display: inline-block;
     padding: 3px 9px;
@@ -435,7 +481,6 @@
     .badge-critical { background: rgba(220,38,38,0.2); color: #fca5a5; }
   }
 
-  /* Alert boxes */
   .alert {
     padding: 12px 14px;
     border-radius: 10px;
@@ -477,7 +522,6 @@
     .alert-success { background: rgba(22,163,74,0.1); color: #86efac; }
   }
 
-  /* Gauge */
   .gauges-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -503,11 +547,9 @@
   .gauge.gauge-warning { border-left: 3px solid var(--warning); }
   .gauge.gauge-critical { border-left: 3px solid var(--danger); }
 
-  /* Tab content */
   .tab-content { display: none; padding-top: 16px; }
   .tab-content.active { display: block; }
 
-  /* History */
   .history-item {
     background: var(--card);
     border: 1px solid var(--border);
@@ -534,7 +576,6 @@
   }
   .history-btn:hover { border-color: var(--primary); color: var(--primary); }
 
-  /* Reference tab */
   .ref-section { margin-bottom: 20px; }
   .ref-section h3 {
     font-size: 0.95rem;
@@ -588,14 +629,12 @@
     margin-top: 4px;
   }
 
-  /* Mini trend chart */
   .trend-chart {
     width: 100%;
     height: 90px;
     margin: 10px 0;
   }
 
-  /* Tooltip */
   .tooltip { position: relative; cursor: help; }
   .tooltip-text {
     visibility: hidden;
@@ -620,7 +659,6 @@
   }
   .tooltip:hover .tooltip-text, .tooltip:focus .tooltip-text { visibility: visible; opacity: 1; }
 
-  /* Toast */
   .toast {
     position: fixed;
     top: 20px;
@@ -639,7 +677,6 @@
   }
   .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 
-  /* Print */
   @media print {
     body { padding: 0; background: white; color: black; }
     .topbar, .tabs, .action-bar, .btn, .btn-icon, .chips { display: none !important; }
@@ -655,7 +692,6 @@
   .ref-link { color: var(--primary); text-decoration: none; }
   .ref-link:hover { text-decoration: underline; }
 </style>
-<base target="_blank">
 </head>
 <body>
 
@@ -670,7 +706,7 @@
           <div class="sub">Hazem Shannak · Regenerative Seawater Aquaculture</div>
         </div>
       </div>
-      <span class="version-pill">v2.0 PRO</span>
+      <span class="version-pill">v3.0 PRO</span>
     </div>
   </div>
 </header>
@@ -730,7 +766,7 @@
           <span class="input-suffix">°C</span>
         </div>
       </div>
-      <div class="input-group has-suffix">
+      <div class="input-group">
         <label>pH</label>
         <div class="input-wrap">
           <input type="number" id="ph" value="7.8" min="6" max="10" step="0.1" inputmode="decimal">
@@ -973,6 +1009,26 @@
     </div>
   </div>
 
+  <!-- NEW: Overall Risk Interpretation -->
+  <div class="card" id="riskInterpretationCard">
+    <div class="card-title"><span class="card-title-icon">🔍</span>What Your Results Mean</div>
+    <div class="interpretation" id="overallInterpretation">
+      <div class="interpretation-title">📊 System Risk Assessment</div>
+      <div class="interpretation-text" id="overallInterpText">
+        Your system is currently operating within safe parameters. The calculated carbon dose will maintain heterotrophic bacterial dominance, keeping TAN and NH₃ at manageable levels through bacterial assimilation.
+      </div>
+    </div>
+    <div class="action-list" id="overallActionList">
+      <div class="action-list-title">✅ Recommended Actions</div>
+      <ul id="overallActions">
+        <li>Continue regular monitoring of TAN, NH₃, and NO₂ every 12-24 hours</li>
+        <li>Maintain current C:N ratio and carbon dosing schedule</li>
+        <li>Monitor dissolved oxygen before and after carbon application</li>
+      </ul>
+      <div class="ref-note">References: Avnimelech (2009); Ebeling et al. (2006); Hargreaves (2013)</div>
+    </div>
+  </div>
+
   <!-- Nitrogen Budget -->
   <div class="card">
     <div class="card-title"><span class="card-title-icon">⚛️</span>Nitrogen Budget</div>
@@ -1013,6 +1069,24 @@
       <span class="metric-value warning" id="nRemain">0 g/day</span>
     </div>
     <div id="nWarning" class="alert alert-info hidden"></div>
+
+    <!-- NEW: Nitrogen Budget Interpretation -->
+    <div class="interpretation" id="nInterp" style="margin-top: 14px;">
+      <div class="interpretation-title">⚛️ Understanding Your Nitrogen Budget</div>
+      <div class="interpretation-text" id="nInterpText">
+        The nitrogen budget shows how feed protein converts to ammonia and how carbon dosing drives bacterial assimilation. When supplemental carbon matches or exceeds the C:N target (typically 12-20:1), heterotrophic bacteria convert toxic ammonia into microbial biomass (biofloc), which shrimp can consume as a protein-rich food source.
+      </div>
+    </div>
+    <div class="action-list" id="nActionList">
+      <div class="action-list-title">🎯 How to Optimize Nitrogen Management</div>
+      <ul>
+        <li><strong>High TAN (&gt;2 mg/L):</strong> Increase C:N ratio to 18-20:1 temporarily. Add carbon in 3-4 splits over 12 hours. Reduce feeding by 20-30% until TAN drops below 1.5 mg/L (Avnimelech, 2009; Crab et al., 2012)</li>
+        <li><strong>High residual N predicted:</strong> If residual TAN &gt;200 g/day, raise target C:N to 18:1 or switch to lower-protein feed (28-32%). Consider adding nitrifying bacteria inoculum to establish autotrophic pathway (Ebeling et al., 2006)</li>
+        <li><strong>Feed C sufficient:</strong> When feed waste alone meets C:N target, skip dosing but verify TAN at next test. This typically occurs with low-protein feeds (&lt;30%) or low feeding rates (&lt;2% biomass) (Hargreaves, 2013)</li>
+        <li><strong>Correction dosing:</strong> For accumulated TAN &gt;1 mg/L, apply correction dose in first split, then maintenance. Monitor TAN every 4 hours during correction period</li>
+      </ul>
+      <div class="ref-note">References: Avnimelech (1999, 2009); Ebeling et al. (2006); Crab et al. (2012); Hargreaves (2013)</div>
+    </div>
   </div>
 
   <!-- Toxicity panel -->
@@ -1035,6 +1109,24 @@
       <span class="metric-value" id="nh3Margin">0 ×</span>
     </div>
     <div id="nh3Warning" class="alert alert-info hidden"></div>
+
+    <!-- NEW: Toxicity Interpretation -->
+    <div class="interpretation" id="toxInterp" style="margin-top: 14px;">
+      <div class="interpretation-title">☠️ Understanding Ammonia Toxicity</div>
+      <div class="interpretation-text" id="toxInterpText">
+        Total Ammonia Nitrogen (TAN) exists as two forms: ionized ammonium (NH₄⁺) and un-ionized ammonia (NH₃). Only NH₃ is toxic to shrimp gills and hemolymph. The proportion of NH₃ increases dramatically with pH and temperature — at pH 8.0 and 28°C, approximately 3-5% of TAN is toxic NH₃. Even low TAN can become lethal if pH rises above 8.5.
+      </div>
+    </div>
+    <div class="action-list" id="toxActionList">
+      <div class="action-list-title">🛡️ How to Manage Ammonia Toxicity</div>
+      <ul>
+        <li><strong>NH₃ &gt;0.15 mg/L (CRITICAL):</strong> Stop feeding immediately. Lower pH gently with CO₂ injection or acid drip (food-grade phosphoric acid at 1:1000 dilution). Add double carbon dose in 4 splits over 12 hours. Begin 20-30% water exchange with clean replacement water if available (Lin &amp; Chen, 2001; Boyd &amp; Tucker, 2014)</li>
+        <li><strong>NH₃ 0.05-0.15 mg/L (Stressful):</strong> Reduce feed by 30%. Add carbon dose immediately. Monitor pH every 2 hours — small pH rises multiply toxicity exponentially. Consider adding Yucca schidigera extract (1 g/m³) to temporarily bind ammonia (Emerenciano et al., 2017)</li>
+        <li><strong>NH₃ &lt;0.05 mg/L but TAN rising:</strong> Proactive carbon dosing before pH spike. Add NaHCO₃ to stabilize pH at 7.8-8.0. Ensure adequate alkalinity (&gt;120 mg/L) to buffer against pH swings (Boyd &amp; Tucker, 2014)</li>
+        <li><strong>pH management:</strong> Maintain pH 7.5-8.3. Above pH 8.5, NH₃ toxicity increases 3-4×. Below pH 7.0, nitrification slows and heterotrophic efficiency drops. Use NaHCO₃ (not CaCO₃) for rapid pH buffering (Martins et al., 2010)</li>
+      </ul>
+      <div class="ref-note">References: Emerson et al. (1975); Lin &amp; Chen (2001, 2003); Boyd &amp; Tucker (2014); Emerenciano et al. (2017)</div>
+    </div>
   </div>
 
   <!-- Alkalinity -->
@@ -1061,11 +1153,30 @@
       <span class="metric-value caution" id="alkLoss">0 mg/L</span>
     </div>
     <div id="alkWarning" class="alert alert-info hidden"></div>
+
+    <!-- NEW: Alkalinity Interpretation -->
+    <div class="interpretation" id="alkInterp" style="margin-top: 14px;">
+      <div class="interpretation-title">⚗️ Understanding Alkalinity Dynamics</div>
+      <div class="interpretation-text" id="alkInterpText">
+        Alkalinity is the water's buffering capacity against pH changes. In biofloc systems, both heterotrophic bacteria (consuming 3.57 g CaCO₃ per g N assimilated) and nitrifying bacteria (consuming 7.05 g CaCO₃ per g N oxidized) deplete alkalinity continuously. Without replenishment, pH crashes below 7.0, stopping bacterial activity and causing ammonia spikes. Sodium bicarbonate (NaHCO₃) is preferred over calcium carbonate for rapid correction because it dissolves instantly and provides immediate HCO₃⁻ ions.
+      </div>
+    </div>
+    <div class="action-list" id="alkActionList">
+      <div class="action-list-title">⚗️ How to Manage Alkalinity</div>
+      <ul>
+        <li><strong>Alkalinity &lt;80 mg/L (CRITICAL):</strong> pH crash risk imminent. Add NaHCO₃ in 2-3 splits over 6 hours (never all at once). Recheck pH and alkalinity in 4 hours. Target 140-160 mg/L for startup, 120-150 mg/L for mature systems (Boyd &amp; Hargreaves, 2001; Hargreaves, 2013)</li>
+        <li><strong>Alkalinity 80-120 mg/L (Low):</strong> Add correction dose in 2 splits today. Begin daily maintenance at 0.22 kg NaHCO₃ per kg feed. Monitor weekly — biofloc systems typically lose 20-40 mg/L alkalinity per week (Ebeling et al., 2006)</li>
+        <li><strong>Alkalinity &gt;150 mg/L (High):</strong> Safe but monitor for excessive hardness if using CaCO₃. In marine systems, maintain alkalinity 120-150 mg/L to balance with natural seawater buffering (Boyd &amp; Tucker, 2014)</li>
+        <li><strong>Daily maintenance:</strong> Apply 0.2-0.25 kg NaHCO₃ per kg feed daily, split between morning and evening doses. This replaces heterotrophic alkalinity consumption and stabilizes pH (Hargreaves, 2013; SRAC 4503)</li>
+        <li><strong>Compound selection:</strong> NaHCO₃ (baking soda) dissolves instantly — ideal for corrections. CaCO₃ (agricultural lime) dissolves slowly — better for long-term maintenance. Avoid quicklime (CaO) which causes pH spikes &gt;9.0 (Martins et al., 2010)</li>
+      </ul>
+      <div class="ref-note">References: Ebeling et al. (2006); Boyd &amp; Hargreaves (2001); Hargreaves (2013); Martins et al. (2010); SRAC 4503</div>
+    </div>
   </div>
 
   <!-- Oxygen -->
   <div class="card">
-    <div class="card-title"><span class="card-title-icon">💨</span>Oxygen & Aeration</div>
+    <div class="card-title"><span class="card-title-icon">💨</span>Oxygen &amp; Aeration</div>
     <div class="metric-row">
       <span class="metric-label">O₂ demand from carbon dose</span>
       <span class="metric-value" id="o2Demand">0 kg</span>
@@ -1083,6 +1194,25 @@
       <span class="metric-value" id="co2Out">0 kg/day</span>
     </div>
     <div id="o2Warning" class="alert alert-info hidden"></div>
+
+    <!-- NEW: Oxygen Interpretation -->
+    <div class="interpretation" id="o2Interp" style="margin-top: 14px;">
+      <div class="interpretation-title">💨 Understanding Oxygen Dynamics</div>
+      <div class="interpretation-text" id="o2InterpText">
+        Biofloc systems have elevated respiration rates (2-6 mg O₂/L/hour) due to high bacterial biomass. Carbon dosing triggers a bacterial respiration surge that peaks 2-4 hours post-application, consuming 50% of added carbon as CO₂. Dissolved oxygen must stay above 4 mg/L at all times — below 3 mg/L, shrimp become stressed and bacterial nitrification stops. The system cannot survive power outages exceeding 30-60 minutes (Hargreaves, 2013; SRAC 4503).
+      </div>
+    </div>
+    <div class="action-list" id="o2ActionList">
+      <div class="action-list-title">💨 How to Manage Oxygen Demand</div>
+      <ul>
+        <li><strong>DO &lt;3 mg/L (CRITICAL):</strong> Do NOT dose carbon. Maximise all aerators immediately. Add emergency aeration (backup blowers, paddlewheels at 100%). If mortality begins, prepare partial harvest. Never add carbon when DO is below 4 mg/L (SRAC 4503; Hargreaves, 2013)</li>
+        <li><strong>DO 3-5 mg/L (Low):</strong> Hold carbon dosing until DO recovers above 5 mg/L. Increase aeration 30 min before planned dose. Run aerators at 100% for 4 hours post-dose. Consider reducing carbon split sizes and increasing frequency (6 splits instead of 3) (Emerenciano et al., 2017)</li>
+        <li><strong>Peak respiration management:</strong> Start aerators 30 min BEFORE carbon application. Peak O₂ demand occurs 2-4 hours post-dose. For large doses (&gt;5 kg), extend high aeration to 6-8 hours. Monitor DO hourly during peak period (Hargreaves, 2013)</li>
+        <li><strong>Aerator sizing:</strong> Standard requirement: 1-5% water volume per minute airflow. For 1000 m³ pond, use 10-50 m³/min blower capacity. Paddlewheel aerators: 1.5-2.0 kg O₂/kWh efficiency. Calculate total system O₂ demand (shrimp + bacteria + carbon) and size aeration at 150% of peak demand (SRAC 4503)</li>
+        <li><strong>Emergency preparedness:</strong> Install DO alarms with automatic backup power. Biofloc systems fail within 30-60 minutes of power loss. Keep backup generators or battery-powered aerators ready. Response time is much shorter than conventional ponds (Hargreaves, 2013)</li>
+      </ul>
+      <div class="ref-note">References: Hargreaves (2013); SRAC 4503; Emerenciano et al. (2017); Ebeling et al. (2006)</div>
+    </div>
   </div>
 
   <!-- Biofloc -->
@@ -1104,6 +1234,25 @@
       <span class="metric-label">Crude protein in floc</span>
       <span class="metric-value" id="flocProtein">0 g/day</span>
     </div>
+
+    <!-- NEW: Biofloc Interpretation -->
+    <div class="interpretation" id="flocInterp" style="margin-top: 14px;">
+      <div class="interpretation-title">🦠 Understanding Biofloc Production</div>
+      <div class="interpretation-text" id="flocInterpText">
+        Biofloc is the microbial biomass produced when heterotrophic bacteria assimilate ammonia using supplemental carbon. This biomass contains 30-40% crude protein and serves as a natural food source for shrimp, reducing feed costs by 15-30%. However, excessive biofloc (&gt;500 mg/L TSS) increases oxygen demand, clogs shrimp gills, and creates anaerobic zones. The optimal settleable solids range is 10-15 mL/L for shrimp (measured by Imhoff cone after 15 minutes settling).
+      </div>
+    </div>
+    <div class="action-list" id="flocActionList">
+      <div class="action-list-title">🦠 How to Manage Biofloc</div>
+      <ul>
+        <li><strong>TSS &gt;500 mg/L (High):</strong> Reduce carbon dosing by 25%. Increase solids removal via settling chambers or foam fractionators. Check Imhoff cone readings daily — target 10-15 mL/L for shrimp. Excessive solids cause gill clogging and oxygen depletion (Hargreaves, 2013; SRAC 4503)</li>
+        <li><strong>TSS &lt;100 mg/L (Low):</strong> Increase C:N ratio to 15-20:1 to stimulate bacterial growth. Verify aeration is adequate to keep solids suspended. Low floc = poor ammonia control. Add probiotic inoculum if starting new system (Avnimelech, 2009)</li>
+        <li><strong>Imhoff cone monitoring:</strong> Measure settleable solids daily at 10:00 AM. 10-15 mL/L = optimal for shrimp. &gt;25 mL/L = remove excess. &lt;5 mL/L = increase carbon. Use 1L cone, 15-minute settling time (SRAC 4503; Hargreaves, 2013)</li>
+        <li><strong>Floc as feed:</strong> Biofloc contains 30-40% protein and can replace 15-30% of commercial feed. Shrimp &gt;5g consume floc effectively. Monitor feed trays — if floc is abundant, reduce pellet feed by 10-15% (Crab et al., 2012; Emerenciano et al., 2017)</li>
+        <li><strong>Solids removal methods:</strong> (1) Settling chambers with 2-4 hour retention, (2) Foam fractionators for fine solids, (3) Periodic draining of central sludge, (4) Resuspend settled solids with paddlewheel repositioning. Never let solids accumulate on bottom — anaerobic zones produce H₂S (SRAC 4503)</li>
+      </ul>
+      <div class="ref-note">References: Avnimelech (2009); Hargreaves (2013); Crab et al. (2012); Emerenciano et al. (2017); SRAC 4503</div>
+    </div>
   </div>
 
   <!-- Costs -->
@@ -1124,6 +1273,24 @@
     <div class="metric-row">
       <span class="metric-label">Cost per kg shrimp biomass</span>
       <span class="metric-value" id="costPerKg">0.00</span>
+    </div>
+
+    <!-- NEW: Cost Interpretation -->
+    <div class="interpretation" id="costInterp" style="margin-top: 14px;">
+      <div class="interpretation-title">💰 Understanding Your Costs</div>
+      <div class="interpretation-text" id="costInterpText">
+        Carbon and alkalinity costs typically represent 8-15% of total production costs in biofloc systems. While higher than conventional ponds, this is offset by zero water exchange costs, improved FCR (1.0-1.2 vs 1.4-1.6), and higher survival rates (80-90% vs 60-70%). The cost per kg shrimp should ideally stay below $0.30-0.50 for carbon + alkalinity combined.
+      </div>
+    </div>
+    <div class="action-list" id="costActionList">
+      <div class="action-list-title">💰 How to Optimize Costs</div>
+      <ul>
+        <li><strong>High carbon costs:</strong> Switch to lower-cost sources: molasses ($0.20-0.40/kg) vs sugar ($0.50-0.80/kg). Consider local agricultural byproducts: rice bran, wheat flour, or cassava starch. Verify carbon content with lab test — actual %C varies by source (Avnimelech, 2009; Hargreaves, 2013)</li>
+        <li><strong>Reduce alkalinity costs:</strong> Use agricultural lime (CaCO₃) for maintenance at $0.10-0.20/kg, reserve NaHCO₃ ($0.30-0.50/kg) for emergency corrections. Apply CaCO₃ in slurry form for faster dissolution. Monitor to avoid over-dosing (Martins et al., 2010)</li>
+        <li><strong>Feed optimization:</strong> Lower protein feed (30-32%) reduces carbon requirement by 20-30%. Every 1% protein reduction saves ~0.1 kg carbon per kg feed. Balance with growth performance — test on small scale first (Emerenciano et al., 2017)</li>
+        <li><strong>Economies of scale:</strong> Buy carbon sources in bulk (tonne lots). Negotiate with local sugar mills for molasses. Store in dry, ventilated area — molasses ferments if wet. Shelf life: sugar indefinite, molasses 3-6 months (Hargreaves, 2013)</li>
+      </ul>
+      <div class="ref-note">References: Avnimelech (2009); Hargreaves (2013); Martins et al. (2010); Emerenciano et al. (2017)</div>
     </div>
   </div>
 
@@ -1316,7 +1483,7 @@ const CURRENCY_SYMBOLS = {
    References: Lin & Chen 2001/2003; Boyd & Tucker 2014; Hargreaves SRAC 4503 */
 const THRESHOLDS = {
   tan:  { safe: 1.0, elevated: 2.0, warning: 3.0, critical: 5.0 },
-  nh3:  { safe: 0.05, elevated: 0.10, warning: 0.15, critical: 0.30 }, // NH3-N mg/L
+  nh3:  { safe: 0.05, elevated: 0.10, warning: 0.15, critical: 0.30 },
   no2:  { safe: 1.0, elevated: 2.0, warning: 3.0, critical: 5.0 },
   doMin: 4.0,
   doCritical: 3.0,
@@ -1329,7 +1496,7 @@ const THRESHOLDS = {
 /* Stage presets */
 const STAGE_PRESETS = {
   nursery:   { cnRatio: "15", excretion: 60, targetAlk: 150, desc: "Nursery PL10-30: high C:N, watch NO₂ closely, frequent dosing." },
-  growout:   { cnRatio: "12", excretion: 50, targetAlk: 140, desc: "Standard juvenile grow-out: target C:N 12-15, normal feed rate." },
+  growout:   { cnRatio: "15", excretion: 50, targetAlk: 140, desc: "Standard juvenile grow-out: target C:N 12-15, normal feed rate." },
   finishing: { cnRatio: "10", excretion: 50, targetAlk: 130, desc: "Final 2-3 weeks: lean towards lower C:N, mature heterotroph+nitrifier mix." },
   startup:   { cnRatio: "20", excretion: 55, targetAlk: 150, desc: "First 14 days: drive heterotroph dominance with high C:N." },
   rescue:    { cnRatio: "20", excretion: 70, targetAlk: 160, desc: "Crisis mode: assume worst N excretion, aggressive dosing." }
@@ -1340,9 +1507,7 @@ const STAGE_PRESETS = {
    ========================================================= */
 function calcPka(tempC, salinity) {
   const T = tempC + 273.15;
-  // Emerson freshwater pKa
   let pka = 0.09018 + 2729.92 / T;
-  // Salinity correction (Bower & Bidwell 1978): pKa decreases ~0.0018 per ppt
   pka -= 0.0018 * salinity;
   return pka;
 }
@@ -1372,7 +1537,6 @@ function getInput(id, fallback) {
 }
 
 function calculate(showToast) {
-  // -------- Inputs --------
   const vol      = getInput('vol', 1000);
   const sal      = getInput('sal', 25);
   const temp     = getInput('temp', 28);
@@ -1398,81 +1562,58 @@ function calculate(showToast) {
   const source = CARBON_SOURCES[sourceKey];
   const curSym = CURRENCY_SYMBOLS[currency] || "$";
 
-  // -------- Shrimp biomass --------
-  const biomassKg = (vol * density * (survival / 100) * awg) / 1000; // kg
+  const biomassKg = (vol * density * (survival / 100) * awg) / 1000;
   const feedRate = biomassKg > 0 ? (feed / biomassKg) * 100 : 0;
 
-  // -------- Nitrogen balance --------
   const feedG = feed * 1000;
-  const nFeed = feedG * (protein / 100) * 0.16;           // total feed N g/day
-  const nWater = nFeed * excretion;                        // TAN excreted to water g/day
+  const nFeed = feedG * (protein / 100) * 0.16;
+  const nWater = nFeed * excretion;
 
-  // C from feed *available to heterotrophs* — conservative estimate
-  // Feed C:N ratio gives total C relative to N: C_total = N_feed × feedCN
-  // After rapid initial respiration by feed-decomposing microbes, ~30% remains available to heterotrophs
-  const cFromFeedTotal = nFeed * feedCN;                   // total C in feed (g/day)
-  const cFromFeed = cFromFeedTotal * 0.30;                 // available after rapid respiration (g/day)
+  const cFromFeedTotal = nFeed * feedCN;
+  const cFromFeed = cFromFeedTotal * 0.30;
 
-  // Total C needed for heterotrophic uptake of TAN
   const cTotal = nWater * cnTarget;
   const cSupp = Math.max(0, cTotal - cFromFeed);
 
-  // Source mass needed (kg/day) — maintenance dose for today's feed N
   const maintenanceKg = cSupp / source.fraction / 1000;
 
-  // TAN correction dose (for accumulated TAN above safe threshold of 1.0 mg/L)
-  const safeTan = 1.0;                                     // mg/L — chronic safe threshold for L. vannamei
+  const safeTan = 1.0;
   const excessTan = Math.max(0, tan - safeTan);
-  const nExcess = excessTan * vol;                         // g N total above safe level (mg/L × m³ = g)
-  const cCorrection = nExcess * cnTarget;                  // g C needed to assimilate excess N
+  const nExcess = excessTan * vol;
+  const cCorrection = nExcess * cnTarget;
   const correctionKg = cCorrection / source.fraction / 1000;
 
-  // Total dose = maintenance + correction
   const totalKg = maintenanceKg + correctionKg;
-  const sourceKg = totalKg;                                // use total for all downstream calculations
+  const sourceKg = totalKg;
   const sourceGperM3 = vol > 0 ? (sourceKg * 1000) / vol : 0;
 
-  // N assimilated (assume 85% efficiency at adequate C:N)
   const nAssim = nWater * 0.85;
   const nRemain = Math.max(0, nWater - nAssim);
 
-  // -------- NH3 toxicity --------
   const nh3Frac = nh3Fraction(temp, ph, sal);
   const nh3 = tan * nh3Frac;
   const pka = calcPka(temp, sal);
   const nh3Margin = nh3 > 0 ? THRESHOLDS.nh3.safe / nh3 : 99;
 
-  // -------- Alkalinity --------
-  // 1 mg/L alk as CaCO3 needs 1.68 mg/L NaHCO3 (84/50 stoichiometry)
   const alkDeficit = Math.max(0, targetAlk - alk);
   const naHco3Kg = alkDeficit * vol * 1.68 / 1000;
-  // Heterotrophic biofloc consumes 3.57 g CaCO3 / g N (Ebeling 2006)
-  const alkLossPerDay = (nAssim * 3.57) / vol;             // mg/L per day
-  // Maintenance dose to replace daily loss (Hargreaves SRAC 4503: ~0.2-0.25 kg NaHCO3 / kg feed)
-  const alkMaint = feed * 0.22;                            // kg/day
+  const alkLossPerDay = (nAssim * 3.57) / vol;
+  const alkMaint = feed * 0.22;
 
-  // -------- Oxygen demand --------
-  // COD for full oxidation × respiration fraction (~50% in biofloc)
   const respFrac = 0.50;
   const o2DemandKg = sourceKg * source.cod * respFrac;
-  // If spread over 8 hours peak respiration
   const peakHours = 8;
   const o2DemandPerHour = o2DemandKg / peakHours;
-  const o2DropMgL = (o2DemandKg * 1000) / (vol);           // total drop if no aeration (mg/L)
+  const o2DropMgL = (o2DemandKg * 1000) / (vol);
   const aeratorH = aeration > 0 ? o2DemandKg / aeration : 999;
-  // CO2 produced: ~1 g CO2 per 0.273 g C respired → C → CO2 ratio 3.67
   const cRespired = sourceKg * source.fraction * respFrac;
   const co2Kg = cRespired * 3.67;
 
-  // -------- Biofloc --------
-  // Ebeling: VSS = 8.07 g per g N assimilated
-  // Include both daily maintenance N and one-time correction N
   const nAssimTotal = nAssim + (nExcess * 0.85);
   const biomassG = nAssimTotal * 8.07;
   const biomassMgL = vol > 0 ? (biomassG / vol) : 0;
-  const flocProtein = biomassG * 0.35;                     // ~35% protein in floc
+  const flocProtein = biomassG * 0.35;
 
-  // -------- Risk --------
   const tanClass = classify(tan, THRESHOLDS.tan);
   const nh3Class = classify(nh3, THRESHOLDS.nh3);
   const no2Class = classify(no2, THRESHOLDS.no2);
@@ -1483,7 +1624,6 @@ function calculate(showToast) {
                   doVal < THRESHOLDS.doMin ? { level: "LOW", badge: "warning" } :
                   { level: "OK", badge: "safe" };
 
-  // Overall risk
   const classes = [tanClass, nh3Class, no2Class, alkClass, doClass];
   const levels = classes.map(c => c.level);
   let overall = "LOW";
@@ -1492,18 +1632,15 @@ function calculate(showToast) {
   else if (levels.includes("ELEVATED") || levels.includes("LOW")) overall = "ELEVATED";
   else if (levels.includes("CAUTION")) overall = "MODERATE";
 
-  // -------- Action plan --------
   const actions = buildActionPlan(overall, tanClass, nh3Class, no2Class, doVal, alk, ph, sourceKg, source.name);
 
-  // -------- Costs --------
   const costToday = sourceKg * price;
-  const bicarbPrice = 0.40; // assume USD/kg for NaHCO3; user can override later
+  const bicarbPrice = 0.40;
   const costBicarb = (naHco3Kg + alkMaint) * bicarbPrice;
   const costTotal = costToday + costBicarb;
   const costPerKgShrimp = biomassKg > 0 ? costTotal / biomassKg : 0;
 
   // ================ UI UPDATES ================
-  // Risk bar
   const riskBar = document.getElementById('riskBar');
   riskBar.className = 'risk-bar';
   const riskMap = { LOW: 'risk-low', MODERATE: 'risk-moderate', ELEVATED: 'risk-elevated', HIGH: 'risk-high', CRITICAL: 'risk-critical' };
@@ -1514,21 +1651,17 @@ function calculate(showToast) {
   document.getElementById('riskNo2').textContent = no2Class.level;
   document.getElementById('riskDo').textContent = doClass.level;
 
-  // Gauges
   setGauge('tan', tan.toFixed(1) + ' mg/L', tanClass);
   setGauge('nh3', nh3.toFixed(3) + ' mg/L', nh3Class);
   setGauge('no2', no2.toFixed(1) + ' mg/L', no2Class);
   setGauge('alk', Math.round(alk) + ' mg/L', alkClass);
 
-  // Biomass readout
   document.getElementById('biomassEst').textContent = (biomassKg >= 1000 ? (biomassKg/1000).toFixed(2) + ' tonnes' : biomassKg.toFixed(1) + ' kg');
   document.getElementById('feedRate').textContent = feedRate.toFixed(1);
 
-  // Hero dose
   document.getElementById('doseKg').textContent = sourceKg >= 0.01 ? sourceKg.toFixed(2) : '0';
   document.getElementById('doseName').textContent = sourceKg >= 0.01 ? 'kg of ' + source.name : 'No supplemental carbon needed';
 
-  // Dose breakdown line
   let doseBreakdown = '';
   if (correctionKg > 0.01 && maintenanceKg > 0.01) {
     doseBreakdown = `Maintenance ${maintenanceKg.toFixed(2)} kg + Correction ${correctionKg.toFixed(2)} kg`;
@@ -1541,10 +1674,8 @@ function calculate(showToast) {
   }
   document.getElementById('doseCost').innerHTML = `≈ ${curSym}${costToday.toFixed(2)} daily · ${sourceGperM3.toFixed(1)} g/m³<br><span style="opacity:0.85;font-size:0.78rem;margin-top:4px;display:block;">${doseBreakdown}</span>`;
 
-  // Schedule
   buildSchedule(sourceKg, source.name, overall);
 
-  // N budget
   document.getElementById('nLoad').textContent = nFeed.toFixed(0) + ' g/day';
   document.getElementById('nWater').textContent = nWater.toFixed(0) + ' g/day';
   document.getElementById('cFeed').textContent = cFromFeed.toFixed(0) + ' g/day';
@@ -1557,14 +1688,12 @@ function calculate(showToast) {
 
   setAlert('nWarning', getNitrogenAdvice(cSupp, nRemain, nWater, correctionKg, nExcess, vol));
 
-  // Toxicity
   document.getElementById('nh3Val').textContent = nh3.toFixed(3) + ' mg/L';
   document.getElementById('nh3Pct').textContent = (nh3Frac * 100).toFixed(2) + '%';
   document.getElementById('pkaVal').textContent = pka.toFixed(2);
   document.getElementById('nh3Margin').textContent = (nh3Margin >= 99 ? '∞' : nh3Margin.toFixed(1) + '×');
-  setAlert('nh3Warning', getNh3Advice(nh3, nh3Margin, ph, temp));
+  setAlert('nh3Warning', getNh3Advice(nh3, nh3Margin, ph, temp, sal));
 
-  // Alkalinity
   document.getElementById('alkCurrent').textContent = alk.toFixed(0) + ' mg/L';
   document.getElementById('alkDeficit').textContent = alkDeficit.toFixed(0) + ' mg/L';
   document.getElementById('alkDose').textContent = naHco3Kg.toFixed(2) + ' kg NaHCO₃';
@@ -1572,25 +1701,21 @@ function calculate(showToast) {
   document.getElementById('alkLoss').textContent = alkLossPerDay.toFixed(1) + ' mg/L/day';
   setAlert('alkWarning', getAlkalinityAdvice(alk, alkDeficit, naHco3Kg, ph));
 
-  // O2
   document.getElementById('o2Demand').textContent = o2DemandKg.toFixed(2) + ' kg';
   document.getElementById('o2Drop').textContent = (o2DropMgL / peakHours).toFixed(2) + ' mg/L/h';
   document.getElementById('aeratorH').textContent = aeratorH > 99 ? '—' : aeratorH.toFixed(1) + ' h';
   document.getElementById('co2Out').textContent = co2Kg.toFixed(2) + ' kg/day';
   setAlert('o2Warning', getOxygenAdvice(o2DemandKg, aeratorH, doVal, o2DropMgL/peakHours));
 
-  // Biofloc
   document.getElementById('biomass').textContent = biomassG.toFixed(0) + ' g (today)';
   document.getElementById('tss').textContent = biomassMgL.toFixed(2) + ' mg/L/day';
   document.getElementById('flocProtein').textContent = flocProtein.toFixed(0) + ' g/day';
 
-  // Costs
   document.getElementById('costToday').textContent = curSym + costToday.toFixed(2);
   document.getElementById('costBicarb').textContent = curSym + costBicarb.toFixed(2);
   document.getElementById('costTotal').textContent = curSym + costTotal.toFixed(2);
   document.getElementById('costPerKg').textContent = curSym + costPerKgShrimp.toFixed(3) + '/kg shrimp';
 
-  // Emergency
   const emCard = document.getElementById('emergencyCard');
   const emList = document.getElementById('emergencyList');
   if (overall === "CRITICAL" || overall === "HIGH") {
@@ -1600,7 +1725,15 @@ function calculate(showToast) {
     emCard.classList.add('hidden');
   }
 
-  // Store current state
+  // ================ NEW: UPDATE INTERPRETATION SECTIONS ================
+  updateOverallInterpretation(overall, tan, nh3, no2, doVal, alk, ph, sourceKg, source.name, curSym, costToday);
+  updateNitrogenInterpretation(cSupp, nRemain, nWater, correctionKg, nExcess, vol, cnTarget, feed, protein);
+  updateToxicityInterpretation(nh3, nh3Margin, ph, temp, tan, sal);
+  updateAlkalinityInterpretation(alk, alkDeficit, naHco3Kg, ph, targetAlk);
+  updateOxygenInterpretation(o2DemandKg, aeratorH, doVal, o2DropMgL/peakHours, sourceKg, source.name);
+  updateBioflocInterpretation(biomassG, biomassMgL, flocProtein, sourceKg);
+  updateCostInterpretation(costToday, costBicarb, costTotal, costPerKgShrimp, biomassKg, source.name);
+
   window.lastCalc = {
     timestamp: Date.now(),
     inputs: { vol, sal, temp, ph, doVal, tan, no2, alk, density, awg, survival, feed, protein, feedCN, excretion: excretion*100, cnTarget, sourceKey, price, currency, targetAlk, aeration },
@@ -1608,6 +1741,173 @@ function calculate(showToast) {
   };
 
   if (showToast) showToastMessage('✓ Recalculated');
+}
+
+/* =========================================================
+   NEW: INTERPRETATION UPDATE FUNCTIONS
+   ========================================================= */
+function updateOverallInterpretation(overall, tan, nh3, no2, doVal, alk, ph, sourceKg, sourceName, curSym, costToday) {
+  const interpText = document.getElementById('overallInterpText');
+  const actionsList = document.getElementById('overallActions');
+
+  let interpHTML = '';
+  let actionsHTML = '';
+
+  switch(overall) {
+    case 'CRITICAL':
+      interpHTML = `<strong>IMMEDIATE ACTION REQUIRED.</strong> Your system has one or more parameters in the critical range. TAN, NH₃, NO₂, DO, or alkalinity has reached levels that can cause mortality within hours. The bacterial community is overwhelmed or collapsing. Carbon dosing alone may not be sufficient — emergency protocols must be followed.`;
+      actionsHTML = `
+        <li><strong>STOP feeding immediately.</strong> Every kg of feed adds more nitrogen. Resume at 50% only after all parameters stabilize below WARNING levels.</li>
+        <li><strong>Maximize aeration NOW.</strong> Every aerator at 100%. Biofloc systems fail within 30-60 minutes without oxygen (Hargreaves, 2013).</li>
+        <li><strong>Apply emergency carbon dose:</strong> ${(sourceKg * 2).toFixed(2)} kg ${sourceName} in 4 splits over 12 hours. Pre-dissolve in 20× water.</li>
+        <li><strong>Begin water exchange:</strong> If available, exchange 20-30% with clean, temperature-matched water. This is the fastest way to dilute toxins.</li>
+        <li><strong>Check for mortality:</strong> Inspect every 2 hours. If mortality >5%, prepare emergency harvest. Sample for pathogens if symptoms persist.</li>
+        <li><strong>Notify farm manager immediately.</strong> Do not attempt to manage CRITICAL conditions alone.</li>
+      `;
+      break;
+    case 'HIGH':
+      interpHTML = `<strong>Elevated risk detected.</strong> One or more parameters are in the WARNING range. The system is stressed but not yet in immediate danger. Bacterial assimilation is partially effective but falling behind nitrogen input. Immediate corrective action can prevent escalation to CRITICAL.`;
+      actionsHTML = `
+        <li><strong>Reduce feed by 30-50%</strong> for the next 24 hours. Less nitrogen input = less bacterial load.</li>
+        <li><strong>Apply carbon dose:</strong> ${sourceKg.toFixed(2)} kg ${sourceName} in 3 splits (06:00, 12:00, 18:00). Increase aeration 30 min before each dose.</li>
+        <li><strong>Monitor every 4 hours:</strong> TAN, NH₃, DO, pH. Re-run calculator with new values after 12 hours.</li>
+        <li><strong>Add NaHCO₃ if alkalinity <120 mg/L:</strong> Target 140 mg/L to buffer pH and support bacteria.</li>
+        <li><strong>Check aerator function:</strong> Clean air stones, check blower belts, verify paddlewheel rotation. Inadequate aeration is a common cause of HIGH risk.</li>
+      `;
+      break;
+    case 'ELEVATED':
+      interpHTML = `<strong>System is trending toward stress.</strong> Parameters are in the ELEVATED or LOW range. The bacterial community is working but may be approaching capacity. Proactive management now prevents future problems.`;
+      actionsHTML = `
+        <li><strong>Increase monitoring frequency:</strong> Test TAN and DO every 8 hours instead of daily.</li>
+        <li><strong>Apply maintenance carbon dose:</strong> ${sourceKg.toFixed(2)} kg ${sourceName} in 2 splits. Ensure complete dissolution before adding.</li>
+        <li><strong>Verify aeration capacity:</strong> Calculate if your aerators can handle peak demand. Add temporary aeration if needed.</li>
+        <li><strong>Check feed rate:</strong> If feeding >4% biomass, consider reducing to 3.5% temporarily.</li>
+        <li><strong>Monitor biofloc volume:</strong> If Imhoff cone >20 mL/L, remove excess solids to reduce oxygen demand.</li>
+      `;
+      break;
+    case 'MODERATE':
+      interpHTML = `<strong>System is stable with minor concerns.</strong> One parameter shows CAUTION level. This is normal during startup or after feed increases. Continue standard management with slight adjustments.`;
+      actionsHTML = `
+        <li><strong>Continue standard carbon dosing:</strong> ${sourceKg.toFixed(2)} kg ${sourceName} as scheduled.</li>
+        <li><strong>Increase one parameter monitoring:</strong> Identify which parameter is elevated and test it twice daily.</li>
+        <li><strong>Review feeding:</strong> Ensure feed trays are checked — uneaten feed is a major nitrogen source.</li>
+        <li><strong>Maintain alkalinity:</strong> Add daily NaHCO₃ maintenance at 0.22 kg per kg feed.</li>
+      `;
+      break;
+    default: // LOW
+      interpHTML = `<strong>System is operating optimally.</strong> All parameters are within safe ranges. The heterotrophic bacterial community is effectively assimilating ammonia. Carbon dosing will maintain this balance and support continued biofloc production as a supplemental food source.`;
+      actionsHTML = `
+        <li><strong>Continue regular monitoring:</strong> TAN, NH₃, NO₂ every 12-24 hours; DO and pH daily.</li>
+        <li><strong>Maintain current C:N ratio (${document.getElementById('cnRatio').value}:1)</strong> and carbon dosing schedule.</li>
+        <li><strong>Monitor dissolved oxygen before and after carbon application.</strong> Peak demand occurs 2-4 hours post-dose.</li>
+        <li><strong>Track biofloc volume:</strong> Maintain 10-15 mL/L (Imhoff cone, 15 min). Remove excess if >20 mL/L.</li>
+        <li><strong>Review costs:</strong> Current daily carbon cost is ${curSym}${costToday.toFixed(2)}. Consider bulk purchasing if costs exceed $0.50/kg shrimp.</li>
+      `;
+  }
+
+  interpText.innerHTML = interpHTML;
+  actionsList.innerHTML = actionsHTML;
+}
+
+function updateNitrogenInterpretation(cSupp, nRemain, nWater, correctionKg, nExcess, vol, cnTarget, feed, protein) {
+  const interpText = document.getElementById('nInterpText');
+
+  let html = '';
+  if (correctionKg > 0.01) {
+    const excessMgL = nExcess / vol;
+    html = `<strong>TAN correction required.</strong> Your current TAN is ${excessMgL.toFixed(1)} mg/L above the safe threshold of 1.0 mg/L. This accumulated ammonia represents a backlog that maintenance dosing alone cannot clear. The correction dose (${correctionKg.toFixed(2)} kg) must be applied in the FIRST split to rapidly stimulate bacterial uptake. After correction, maintenance dosing will prevent re-accumulation.`;
+  } else if (cSupp <= 0 && nWater > 0) {
+    html = `<strong>Feed carbon is sufficient.</strong> Your feed's native C:N ratio (after accounting for rapid respiration losses) meets the target C:N of ${cnTarget}:1. This typically occurs with low-protein feeds or low feeding rates. <strong>Skip supplemental carbon today</strong> but verify TAN at next test. If TAN rises above 1.5 mg/L, resume dosing.`;
+  } else if (nRemain > 200) {
+    html = `<strong>High residual nitrogen predicted.</strong> Even with carbon dosing, bacterial assimilation cannot keep up with nitrogen input. This suggests either (1) feeding rate is too high for system capacity, (2) C:N target is too low for current load, or (3) bacterial population is insufficient. Consider raising C:N to 18:1, reducing protein to 30-32%, or adding probiotic inoculum.`;
+  } else {
+    html = `<strong>Nitrogen balance is favorable.</strong> Supplemental carbon (${cSupp.toFixed(0)} g/day) will drive heterotrophic bacteria to assimilate ${(nWater * 0.85).toFixed(0)} g N/day into microbial biomass. Residual TAN of ${nRemain.toFixed(0)} g/day represents the portion that will be handled by nitrifying bacteria or remain as background levels. This is a healthy balance between heterotrophic and autotrophic pathways.`;
+  }
+
+  interpText.innerHTML = html;
+}
+
+function updateToxicityInterpretation(nh3, nh3Margin, ph, temp, tan, sal) {
+  const interpText = document.getElementById('toxInterpText');
+
+  let html = '';
+  if (nh3 >= THRESHOLDS.nh3.critical) {
+    html = `<strong>LETHAL AMMONIA LEVELS.</strong> NH₃ at ${nh3.toFixed(3)} mg/L is in the critical range. At pH ${ph.toFixed(1)} and ${temp}°C, ${(nh3Fraction(temp, ph, sal)*100).toFixed(1)}% of your TAN (${tan} mg/L) exists as toxic NH₃. Shrimp gill tissue is being damaged, hemolymph proteins denatured, and osmoregulation compromised. Mortality can begin within 2-4 hours at this level. <strong>This is a life-threatening emergency.</strong>`;
+  } else if (nh3 >= THRESHOLDS.nh3.warning) {
+    html = `<strong>Stressful ammonia levels.</strong> NH₃ at ${nh3.toFixed(3)} mg/L exceeds the chronic safe threshold (0.15 mg/L). Shrimp are experiencing sublethal stress: reduced feeding, increased oxygen consumption, and suppressed immune function. Growth rates decline by 10-20% at this level. Prolonged exposure (>24 hours) leads to gill hyperplasia and increased disease susceptibility.`;
+  } else if (nh3 >= THRESHOLDS.nh3.elevated) {
+    html = `<strong>Elevated but manageable.</strong> NH₃ at ${nh3.toFixed(3)} mg/L is within tolerance but trending upward. The safety margin is ${nh3Margin.toFixed(1)}× the chronic threshold. Monitor pH closely — a 0.3 pH increase (e.g., from algae photosynthesis) would double NH₃ toxicity. This level is safe for short periods but should not be maintained long-term.`;
+  } else {
+    html = `<strong>Safe ammonia levels.</strong> NH₃ at ${nh3.toFixed(3)} mg/L is well below the chronic threshold (0.05 mg/L). The safety margin is ${nh3Margin >= 99 ? 'infinite' : nh3Margin.toFixed(1) + '×'}. At pH ${ph.toFixed(1)} and ${temp}°C, only ${(nh3Fraction(temp, ph, sal)*100).toFixed(1)}% of TAN exists as toxic NH₃. Continue current management to maintain this safety margin.`;
+  }
+
+  interpText.innerHTML = html;
+}
+
+function updateAlkalinityInterpretation(alk, alkDeficit, naHco3Kg, ph, targetAlk) {
+  const interpText = document.getElementById('alkInterpText');
+
+  let html = '';
+  if (alk < THRESHOLDS.alkMin) {
+    html = `<strong>CRITICAL: pH crash imminent.</strong> Alkalinity at ${alk} mg/L is below 80 mg/L. The system has virtually no buffering capacity. Any addition of acid (from bacterial respiration, feed, or rain) will cause pH to plummet below 7.0, stopping all bacterial activity and causing an ammonia spike. <strong>Add NaHCO₃ immediately</strong> — this is as urgent as high ammonia.`;
+  } else if (alk < THRESHOLDS.alkWarning) {
+    html = `<strong>Low alkalinity warning.</strong> At ${alk} mg/L, buffering capacity is compromised. pH will swing widely between day (algae photosynthesis raises pH) and night (respiration lowers pH). These swings increase NH₃ toxicity during high-pH periods and reduce bacterial efficiency during low-pH periods. Add ${naHco3Kg.toFixed(2)} kg NaHCO₃ today and begin daily maintenance.`;
+  } else if (alk > targetAlk + 20) {
+    html = `<strong>Alkalinity above target.</strong> While not harmful, excessive alkalinity (${alk} mg/L) combined with high pH can indicate excessive liming or low bacterial activity. Monitor for CaCO₃ precipitation (cloudy water). No correction needed, but verify pH stays below 8.5 to prevent NH₃ toxicity.`;
+  } else {
+    html = `<strong>Alkalinity is optimal.</strong> At ${alk} mg/L, the system has adequate buffering to maintain pH stability. Heterotrophic bacteria consume 3.57 g CaCO₃ per g N assimilated, and nitrifiers consume 7.05 g/g. Daily maintenance of 0.22 kg NaHCO₃ per kg feed will replace these losses and keep pH in the 7.5-8.3 range.`;
+  }
+
+  interpText.innerHTML = html;
+}
+
+function updateOxygenInterpretation(o2DemandKg, aeratorH, doVal, peakDrop, sourceKg, sourceName) {
+  const interpText = document.getElementById('o2InterpText');
+
+  let html = '';
+  if (doVal < THRESHOLDS.doCritical) {
+    html = `<strong>CRITICAL: Oxygen depletion.</strong> DO at ${doVal} mg/L is below the survival threshold (3 mg/L). Shrimp are suffocating. Bacterial nitrification has stopped. <strong>DO NOT ADD CARBON</strong> — it will make the situation worse by stimulating bacterial respiration. Emergency aeration is the only priority.`;
+  } else if (doVal < THRESHOLDS.doMin) {
+    html = `<strong>Low oxygen warning.</strong> DO at ${doVal} mg/L is below the safe minimum (4 mg/L). Shrimp are stressed, feeding has likely stopped, and bacterial efficiency is reduced. Carbon dosing must be postponed until DO recovers above 5 mg/L. Peak respiration from today's dose would drop DO to ${(doVal - peakDrop).toFixed(1)} mg/L — potentially lethal.`;
+  } else if (peakDrop > 1.5) {
+    html = `<strong>High oxygen demand predicted.</strong> The calculated carbon dose will cause a ${peakDrop.toFixed(1)} mg/L/hour DO drop during peak respiration (2-4 hours post-dose). With starting DO at ${doVal} mg/L, minimum DO would reach ${(doVal - peakDrop * 2).toFixed(1)} mg/L. <strong>Pre-aeration is mandatory.</strong> Start aerators 30 minutes before dosing and run at 100% for ${Math.ceil(aeratorH)} hours.`;
+  } else if (aeratorH > 6) {
+    html = `<strong>Extended aeration required.</strong> Your aerators need to run ${aeratorH.toFixed(1)} hours to compensate for carbon respiration. This is feasible but leaves little margin for error. Consider splitting the dose into smaller, more frequent applications (6 splits instead of 3) to smooth oxygen demand.`;
+  } else {
+    html = `<strong>Oxygen demand is manageable.</strong> The carbon dose will consume ${o2DemandKg.toFixed(2)} kg O₂, causing a peak drop of ${peakDrop.toFixed(2)} mg/L/hour. With starting DO at ${doVal} mg/L and ${aeratorH.toFixed(1)} aerator-hours available, the system can safely handle this dose. Start aerators 30 minutes before application as a standard precaution.`;
+  }
+
+  interpText.innerHTML = html;
+}
+
+function updateBioflocInterpretation(biomassG, biomassMgL, flocProtein, sourceKg) {
+  const interpText = document.getElementById('flocInterpText');
+
+  let html = '';
+  if (biomassMgL > 0.5) {
+    html = `<strong>High biofloc production.</strong> Today's dose will generate ${biomassG.toFixed(0)} g of bacterial biomass, adding ${biomassMgL.toFixed(1)} mg/L to TSS. This floc contains ${flocProtein.toFixed(0)} g of crude protein (35% dry weight) that shrimp can consume. However, rapid accumulation risks exceeding the 500 mg/L TSS threshold. Monitor Imhoff cone readings daily.`;
+  } else if (biomassMgL > 0.1) {
+    html = `<strong>Moderate biofloc production.</strong> Today's dose will generate ${biomassG.toFixed(0)} g of bacterial biomass (${biomassMgL.toFixed(2)} mg/L). This is within the optimal range for shrimp biofloc systems (100-300 mg/L TSS). The floc provides ${flocProtein.toFixed(0)} g of supplemental protein daily, potentially reducing feed costs by 10-15%.`;
+  } else {
+    html = `<strong>Low biofloc production.</strong> With minimal or no carbon dosing, bacterial biomass production is low (${biomassG.toFixed(0)} g). This is acceptable if TAN is already low and nitrifying bacteria are established. However, if TAN rises, biofloc may be insufficient for ammonia control. Consider increasing C:N ratio to 15:1 to build floc volume.`;
+  }
+
+  interpText.innerHTML = html;
+}
+
+function updateCostInterpretation(costToday, costBicarb, costTotal, costPerKgShrimp, biomassKg, sourceName) {
+  const interpText = document.getElementById('costInterpText');
+
+  let html = '';
+  if (costPerKgShrimp > 0.50) {
+    html = `<strong>High cost per kg shrimp.</strong> At $${costPerKgShrimp.toFixed(3)}/kg, carbon and alkalinity costs exceed the recommended threshold ($0.30-0.50/kg). This may be due to (1) expensive carbon source, (2) high feeding rate, or (3) frequent correction dosing. Consider switching to molasses or agricultural byproducts, reducing feed protein, or improving system stability to reduce correction needs.`;
+  } else if (costPerKgShrimp > 0.30) {
+    html = `<strong>Moderate cost efficiency.</strong> At $${costPerKgShrimp.toFixed(3)}/kg, costs are within acceptable range. Daily carbon cost of $${costToday.toFixed(2)} and alkalinity cost of $${costBicarb.toFixed(2)} represent ~10-15% of production costs. This is offset by zero water exchange, improved FCR (1.0-1.2), and higher survival (80-90%).`;
+  } else {
+    html = `<strong>Good cost efficiency.</strong> At $${costPerKgShrimp.toFixed(3)}/kg, carbon and alkalinity management is highly efficient. Low costs indicate either (1) effective system stability minimizing corrections, (2) low-cost carbon source, or (3) optimal feeding rate. Continue current practices.`;
+  }
+
+  interpText.innerHTML = html;
 }
 
 function setGauge(id, value, classObj) {
@@ -1635,7 +1935,7 @@ function getNitrogenAdvice(cSupp, nRemain, nWater, correctionKg, nExcess, vol) {
     const excessMgL = nExcess / vol;
     let body = `Excess TAN of ${excessMgL.toFixed(1)} mg/L above safe needs ${correctionKg.toFixed(2)} kg carbon to reduce to ≤1.0 mg/L. Apply correction in first split, then maintenance.`;
     if (nRemain === 0) {
-      body += ' Correction dose exceeds today\'s N load — excess carbon will be respired as CO₂.';
+      body += " Correction dose exceeds today's N load — excess carbon will be respired as CO₂.";
     }
     return { type: 'warning', icon: '⚠️', title: 'TAN correction required', body: body };
   }
@@ -1648,12 +1948,12 @@ function getNitrogenAdvice(cSupp, nRemain, nWater, correctionKg, nExcess, vol) {
   return null;
 }
 
-function getNh3Advice(nh3, margin, ph, temp) {
+function getNh3Advice(nh3, margin, ph, temp, sal) {
   if (nh3 >= THRESHOLDS.nh3.critical) {
     return { type: 'danger', icon: '☠️', title: 'NH₃ CRITICAL — emergency response', body: `Un-ionised NH₃ at ${nh3.toFixed(3)} mg/L. Stop feeding. Lower pH gently (CO₂ injection or acid drip). Add carbon now. Partial water exchange 20-30%.` };
   }
   if (nh3 >= THRESHOLDS.nh3.warning) {
-    return { type: 'warning', icon: '⚠️', title: 'NH₃ stressful', body: `${nh3.toFixed(3)} mg/L exceeds chronic safe (0.15). Reduce feed 30%. Watch pH — at pH ${ph}, ${(nh3Fraction(temp, ph, 25)*100).toFixed(1)}% of TAN is toxic NH₃.` };
+    return { type: 'warning', icon: '⚠️', title: 'NH₃ stressful', body: `${nh3.toFixed(3)} mg/L exceeds chronic safe (0.15). Reduce feed 30%. Watch pH — at pH ${ph}, ${(nh3Fraction(temp, ph, sal)*100).toFixed(1)}% of TAN is toxic NH₃.` };
   }
   if (nh3 >= THRESHOLDS.nh3.elevated) {
     return { type: 'info', icon: '⚡', title: 'NH₃ elevated', body: `${nh3.toFixed(3)} mg/L NH₃. Within tolerance but trending up. Monitor pH closely — small pH rises multiply toxicity fast.` };
@@ -1841,7 +2141,7 @@ function loadSession(idx) {
   const s = history[idx];
   if (!s) return;
   Object.entries(s.inputs).forEach(([k, v]) => {
-    const el = document.getElementById(k === 'doVal' ? 'do' : k === 'sourceKey' ? 'carbonSource' : k);
+    const el = document.getElementById(k === 'doVal' ? 'do' : k === 'sourceKey' ? 'carbonSource' : k === 'cnTarget' ? 'cnRatio' : k);
     if (el) el.value = v;
   });
   calculate(true);
@@ -1959,7 +2259,7 @@ function loadFromHash() {
   if (!window.location.hash) return;
   const params = new URLSearchParams(window.location.hash.slice(1));
   params.forEach((v, k) => {
-    const el = document.getElementById(k === 'doVal' ? 'do' : k === 'sourceKey' ? 'carbonSource' : k);
+    const el = document.getElementById(k === 'doVal' ? 'do' : k === 'sourceKey' ? 'carbonSource' : k === 'cnTarget' ? 'cnRatio' : k);
     if (el) el.value = v;
   });
 }
@@ -1990,6 +2290,9 @@ function resetDefaults() {
   document.getElementById('currency').value = 'USD';
   document.getElementById('targetAlk').value = 140;
   document.getElementById('aeration').value = 15;
+  document.querySelectorAll('#stageChips .chip').forEach(c => c.classList.remove('active'));
+  document.querySelector('#stageChips .chip[data-stage="growout"]').classList.add('active');
+  document.getElementById('stageDesc').textContent = STAGE_PRESETS.growout.desc;
   calculate(true);
 }
 
