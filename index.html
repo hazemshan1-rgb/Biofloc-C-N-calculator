@@ -537,21 +537,47 @@
   @media (max-width: 480px) {
     .gauges-grid { grid-template-columns: repeat(2, 1fr); }
   }
-  .gauge {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 12px 10px;
-    text-align: center;
-    box-shadow: var(--shadow-sm);
+  /* SVG Arc Gauges */
+  .gauge-wrap { text-align: center; }
+  .gauge-svg  { width: 100%; height: auto; max-width: 130px; display: block; margin: 0 auto; overflow: visible; }
+  .gauge-bg-arc  { stroke: #e5e7eb; stroke-width: 9; fill: none; stroke-linecap: round; }
+  .gauge-fill-arc {
+    stroke-width: 9; fill: none; stroke-linecap: round;
+    stroke-dasharray: 184.3; stroke-dashoffset: 184.3;
+    transition: stroke-dashoffset 0.65s cubic-bezier(0.4, 0, 0.2, 1), stroke 0.3s ease;
   }
-  .gauge-label { font-size: 0.65rem; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; margin-bottom: 4px; }
-  .gauge-value { font-size: 1.05rem; font-weight: 800; margin-bottom: 4px; }
-  .gauge-status { font-size: 0.65rem; }
-  .gauge.gauge-safe { border-left: 3px solid var(--success); }
-  .gauge.gauge-elevated { border-left: 3px solid var(--caution); }
-  .gauge.gauge-warning { border-left: 3px solid var(--warning); }
-  .gauge.gauge-critical { border-left: 3px solid var(--danger); }
+  .gauge-val-txt    { font-size: 13px; font-weight: 700; text-anchor: middle; dominant-baseline: middle; fill: #111; }
+  .gauge-unit-txt   { font-size: 9px;  text-anchor: middle; dominant-baseline: middle; fill: #6b7280; }
+  .gauge-name-txt   { font-size: 10px; font-weight: 600; text-anchor: middle; dominant-baseline: middle; fill: #374151; }
+  .gauge-status-txt { font-size: 9px;  font-weight: 700; text-anchor: middle; dominant-baseline: middle; }
+  @media (prefers-color-scheme: dark) {
+    .gauge-bg-arc  { stroke: #374151; }
+    .gauge-val-txt { fill: #f1f5f9; }
+    .gauge-name-txt { fill: #cbd5e1; }
+  }
+
+  /* C:N Ratio Dial */
+  .cn-dial-wrap { text-align: center; padding: 8px 0 4px; }
+  .cn-dial-svg  { width: 100%; max-width: 160px; display: block; margin: 0 auto; overflow: visible; }
+  .cn-optimal-arc { stroke: #38bdf8; stroke-width: 12; fill: none; stroke-linecap: butt; opacity: 0.25; }
+  .cn-fill-arc    {
+    stroke: #0c4a6e; stroke-width: 9; fill: none; stroke-linecap: round;
+    stroke-dasharray: 184.3; stroke-dashoffset: 184.3;
+    transition: stroke-dashoffset 0.65s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .cn-label-big   { font-size: 18px; font-weight: 800; text-anchor: middle; dominant-baseline: middle; fill: #0c4a6e; }
+  .cn-label-small { font-size: 9px;  font-weight: 600; text-anchor: middle; dominant-baseline: middle; fill: #6b7280; }
+  .cn-tick-label  { font-size: 8px;  text-anchor: middle; dominant-baseline: middle; fill: #9ca3af; }
+  @media (prefers-color-scheme: dark) {
+    .cn-label-big  { fill: #7dd3fc; }
+    .cn-fill-arc   { stroke: #38bdf8; }
+  }
+
+  /* Imhoff Cone SVG */
+  .imhoff-wrap { display: flex; align-items: flex-start; gap: 12px; padding: 8px 0; }
+  .imhoff-svg  { width: 90px; flex-shrink: 0; overflow: visible; }
+  .imhoff-info { flex: 1; font-size: 0.82rem; color: var(--text-light); line-height: 1.6; }
+  .imhoff-info strong { color: var(--text); }
 
   .tab-content { display: none; padding-top: 16px; }
   .tab-content.active { display: block; }
@@ -1016,6 +1042,23 @@
         </div>
       </div>
       <div class="input-group">
+        <label>Liming Agent <span class="input-help tooltip" tabindex="0">?<span class="tooltip-text">NaHCO₃: safest, fastest. CaCO₃: cheapest for maintenance. Ca(OH)₂: use max 10 kg/dose — splits required.</span></span></label>
+        <select id="limingAgent">
+          <option value="nahco3" selected>NaHCO₃ (baking soda)</option>
+          <option value="caco3">CaCO₃ (agri lime)</option>
+          <option value="caoh2">Ca(OH)₂ (hydrated lime)</option>
+        </select>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="input-group">
+        <label>Imhoff Cone <span class="input-help tooltip" tabindex="0">?<span class="tooltip-text">Settle 15 min and read. Optimal for shrimp BFT: 20–50 mL/L.</span></span></label>
+        <div class="input-wrap">
+          <input type="number" id="imhoff" value="" placeholder="e.g. 30" min="0" max="200" step="1" inputmode="decimal">
+          <span class="input-suffix">mL/L</span>
+        </div>
+      </div>
+      <div class="input-group">
         <label>Aerator capacity <span class="input-help tooltip" tabindex="0">?<span class="tooltip-text">Standard aeration efficiency rate (SAE). Typical paddlewheel ~1.5 kg O₂/kWh.</span></span></label>
         <div class="input-wrap">
           <input type="number" id="aeration" value="15" min="0" step="1" inputmode="decimal">
@@ -1050,27 +1093,47 @@
     </div>
   </div>
 
-  <!-- Gauges -->
+  <!-- SVG Arc Gauges -->
   <div class="gauges-grid">
-    <div class="gauge gauge-safe" id="g-tan">
-      <div class="gauge-label">TAN</div>
-      <div class="gauge-value" id="g-tan-val">0.0</div>
-      <div class="gauge-status badge-status badge-safe" id="g-tan-status">SAFE</div>
+    <div class="gauge-wrap">
+      <svg class="gauge-svg" viewBox="0 0 120 110" aria-label="TAN gauge">
+        <path class="gauge-bg-arc" d="M 14.91 78.42 A 48 48 0 1 1 105.09 78.42"/>
+        <path class="gauge-fill-arc" d="M 14.91 78.42 A 48 48 0 1 1 105.09 78.42" id="gfill-tan" stroke="#10b981"/>
+        <text class="gauge-val-txt" x="60" y="57" id="g-tan-val">0.0</text>
+        <text class="gauge-unit-txt" x="60" y="71">mg/L</text>
+        <text class="gauge-name-txt" x="60" y="86">TAN</text>
+        <text class="gauge-status-txt" x="60" y="100" id="g-tan-status" fill="#10b981">SAFE</text>
+      </svg>
     </div>
-    <div class="gauge gauge-safe" id="g-nh3">
-      <div class="gauge-label">NH₃-N</div>
-      <div class="gauge-value" id="g-nh3-val">0.00</div>
-      <div class="gauge-status badge-status badge-safe" id="g-nh3-status">SAFE</div>
+    <div class="gauge-wrap">
+      <svg class="gauge-svg" viewBox="0 0 120 110" aria-label="NH₃ gauge">
+        <path class="gauge-bg-arc" d="M 14.91 78.42 A 48 48 0 1 1 105.09 78.42"/>
+        <path class="gauge-fill-arc" d="M 14.91 78.42 A 48 48 0 1 1 105.09 78.42" id="gfill-nh3" stroke="#10b981"/>
+        <text class="gauge-val-txt" x="60" y="57" id="g-nh3-val">0.00</text>
+        <text class="gauge-unit-txt" x="60" y="71">mg/L</text>
+        <text class="gauge-name-txt" x="60" y="86">NH₃-N</text>
+        <text class="gauge-status-txt" x="60" y="100" id="g-nh3-status" fill="#10b981">SAFE</text>
+      </svg>
     </div>
-    <div class="gauge gauge-safe" id="g-no2">
-      <div class="gauge-label">NO₂⁻-N</div>
-      <div class="gauge-value" id="g-no2-val">0.0</div>
-      <div class="gauge-status badge-status badge-safe" id="g-no2-status">SAFE</div>
+    <div class="gauge-wrap">
+      <svg class="gauge-svg" viewBox="0 0 120 110" aria-label="NO₂ gauge">
+        <path class="gauge-bg-arc" d="M 14.91 78.42 A 48 48 0 1 1 105.09 78.42"/>
+        <path class="gauge-fill-arc" d="M 14.91 78.42 A 48 48 0 1 1 105.09 78.42" id="gfill-no2" stroke="#10b981"/>
+        <text class="gauge-val-txt" x="60" y="57" id="g-no2-val">0.0</text>
+        <text class="gauge-unit-txt" x="60" y="71">mg/L</text>
+        <text class="gauge-name-txt" x="60" y="86">NO₂⁻-N</text>
+        <text class="gauge-status-txt" x="60" y="100" id="g-no2-status" fill="#10b981">SAFE</text>
+      </svg>
     </div>
-    <div class="gauge gauge-safe" id="g-alk">
-      <div class="gauge-label">Alkalinity</div>
-      <div class="gauge-value" id="g-alk-val">0</div>
-      <div class="gauge-status badge-status badge-safe" id="g-alk-status">OK</div>
+    <div class="gauge-wrap">
+      <svg class="gauge-svg" viewBox="0 0 120 110" aria-label="Alkalinity gauge">
+        <path class="gauge-bg-arc" d="M 14.91 78.42 A 48 48 0 1 1 105.09 78.42"/>
+        <path class="gauge-fill-arc" d="M 14.91 78.42 A 48 48 0 1 1 105.09 78.42" id="gfill-alk" stroke="#10b981"/>
+        <text class="gauge-val-txt" x="60" y="57" id="g-alk-val">0</text>
+        <text class="gauge-unit-txt" x="60" y="71">mg/L</text>
+        <text class="gauge-name-txt" x="60" y="86">Alkalinity</text>
+        <text class="gauge-status-txt" x="60" y="100" id="g-alk-status" fill="#10b981">OK</text>
+      </svg>
     </div>
   </div>
 
@@ -1086,6 +1149,25 @@
         <div id="schedule">No supplemental carbon needed.</div>
         <div class="split-list" id="splitList"></div>
       </div>
+    </div>
+  </div>
+
+  <!-- C:N Ratio Dial -->
+  <div class="card" style="margin-bottom:14px;">
+    <div class="card-title"><span class="card-title-icon">⚖️</span>C:N Ratio Dial</div>
+    <div class="cn-dial-wrap">
+      <svg class="cn-dial-svg" viewBox="0 0 120 110" aria-label="C:N ratio dial">
+        <path class="gauge-bg-arc" d="M 14.91 78.42 A 48 48 0 1 1 105.09 78.42"/>
+        <path class="cn-optimal-arc" id="cn-optimal-arc" d=""/>
+        <path class="cn-fill-arc" id="cn-fill-arc" d="M 14.91 78.42 A 48 48 0 1 1 105.09 78.42"/>
+        <text class="cn-tick-label" x="10"  y="85">6</text>
+        <text class="cn-tick-label" x="34"  y="20">12</text>
+        <text class="cn-tick-label" x="86"  y="20">18</text>
+        <text class="cn-tick-label" x="110" y="85">24</text>
+        <text class="cn-label-big"   x="60" y="56" id="cn-dial-val">15:1</text>
+        <text class="cn-label-small" x="60" y="72">Target C:N</text>
+        <text class="cn-label-small" x="60" y="86" id="cn-dial-zone" style="fill:#38bdf8">STANDARD</text>
+      </svg>
     </div>
   </div>
 
@@ -1221,7 +1303,7 @@
       <span class="metric-value" id="alkDeficit">0 mg/L</span>
     </div>
     <div class="metric-row">
-      <span class="metric-label">NaHCO₃ to correct now</span>
+      <span class="metric-label">Liming agent dose (correction)</span>
       <span class="metric-value" id="alkDose">0 kg</span>
     </div>
     <div class="metric-row">
@@ -1307,13 +1389,27 @@
       <span class="metric-value" id="tss">0 mg/L</span>
     </div>
     <div class="metric-row">
-      <span class="metric-label">Recommended floc volume (Imhoff)</span>
-      <span class="metric-value" id="flocVol">10-15 mL/L</span>
-    </div>
-    <div class="metric-row">
       <span class="metric-label">Crude protein in floc</span>
       <span class="metric-value" id="flocProtein">0 g/day</span>
     </div>
+
+    <!-- Imhoff Cone Visual -->
+    <div class="imhoff-wrap" id="imhoffConeWrap">
+      <svg class="imhoff-svg" viewBox="0 0 120 150" aria-label="Imhoff cone">
+        <polygon points="10,5 110,5 80,135 40,135" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5"/>
+        <rect id="imhoff-fill" x="10" y="135" width="100" height="0" fill="#10b981" opacity="0.6"/>
+        <polygon points="10,5 110,5 80,135 40,135" fill="none" stroke="#64748b" stroke-width="1.5"/>
+        <line x1="10" y1="5" x2="110" y2="5" stroke="#94a3b8" stroke-width="0.8" stroke-dasharray="3,2"/>
+        <line x1="22" y1="44" x2="98" y2="44" stroke="#94a3b8" stroke-width="0.5" stroke-dasharray="2,2" opacity="0.5"/>
+        <line x1="34" y1="83" x2="86" y2="83" stroke="#94a3b8" stroke-width="0.5" stroke-dasharray="2,2" opacity="0.5"/>
+        <text id="imhoff-cone-val" x="60" y="75" font-size="11" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#64748b">—</text>
+      </svg>
+      <div class="imhoff-info">
+        <strong id="imhoff-cone-level">No reading</strong><br>
+        <span id="imhoff-cone-advice">Enter Imhoff reading in Inputs tab to see biofloc volume status.</span>
+      </div>
+    </div>
+    <div id="imhoffStatusInline" class="alert alert-info" style="margin-top:8px;">Enter Imhoff reading above</div>
 
     <!-- NEW: Biofloc Interpretation -->
     <div class="interpretation" id="flocInterp" style="margin-top: 14px;">
@@ -1555,6 +1651,21 @@ const CARBON_SOURCES = {
   acetate:    { name: "Sodium acetate", fraction: 0.29, cod: 0.78, speed: "very fast", density: null }
 };
 
+/* Liming agent stoichiometric factors (Ebeling 2006; Boyd & Tucker 2014)
+   dose_kg = deficit_mg_L × vol_m3 × factor / 1000
+   NaHCO₃: MW84, monoprotic → eq.wt 84 → factor 84/50 = 1.68
+   CaCO₃:  MW100, diprotic  → eq.wt 50 → factor 50/50 = 1.00
+   Ca(OH)₂: MW74, diprotic  → eq.wt 37 → factor 37/50 = 0.74 */
+const LIMING_AGENTS = {
+  nahco3: { name: 'NaHCO₃',  factor: 1.68, label: 'NaHCO₃ (baking soda)',     maxDosePerApp: Infinity },
+  caco3:  { name: 'CaCO₃',   factor: 1.00, label: 'CaCO₃ (agricultural lime)', maxDosePerApp: Infinity },
+  caoh2:  { name: 'Ca(OH)₂', factor: 0.74, label: 'Ca(OH)₂ (hydrated lime)',   maxDosePerApp: 10 }
+};
+
+const GAUGE_MAX   = { tan: 5, nh3: 0.3, no2: 3, alk: 250 };
+const GAUGE_ARC   = 184.3; /* 48 × 220° × π/180 */
+const BADGE_COLOR = { safe: '#10b981', elevated: '#f59e0b', warning: '#f97316', critical: '#ef4444' };
+
 const CURRENCY_SYMBOLS = {
   USD: "$", EUR: "€", GBP: "£", AED: "AED ", EGP: "£E ", INR: "₹", IDR: "Rp ", THB: "฿"
 };
@@ -1675,8 +1786,13 @@ function calculate(showToast) {
   const pka = calcPka(temp, sal);
   const nh3Margin = nh3 > 0 ? THRESHOLDS.nh3.safe / nh3 : 99;
 
+  const limingKey = document.getElementById('limingAgent').value;
+  const limingAgent = LIMING_AGENTS[limingKey];
   const alkDeficit = Math.max(0, targetAlk - alk);
-  const naHco3Kg = alkDeficit * vol * 1.68 / 1000;
+  const effectiveDeficit = Math.min(alkDeficit, limingAgent.maxDosePerApp === Infinity ? alkDeficit : limingAgent.maxDosePerApp * vol);
+  const naHco3Kg = effectiveDeficit * vol * limingAgent.factor / 1000;
+  const alkDeficitNote = (limingKey === 'caoh2' && alkDeficit > limingAgent.maxDosePerApp)
+    ? ` (split — total deficit ${alkDeficit.toFixed(0)} mg/L, apply in ${Math.ceil(alkDeficit / 10)} doses)` : '';
   const alkLossPerDay = (nAssim * 3.57) / vol;
   const alkMaint = feed * 0.22;
 
@@ -1735,6 +1851,21 @@ function calculate(showToast) {
   setGauge('nh3', nh3.toFixed(3) + ' mg/L', nh3Class);
   setGauge('no2', no2.toFixed(1) + ' mg/L', no2Class);
   setGauge('alk', Math.round(alk) + ' mg/L', alkClass);
+  setCnDial(cnTarget);
+
+  /* Imhoff cone inline status */
+  const imhoffVal = getInput('imhoff', -1);
+  const imhoffClass = classifyImhoff(imhoffVal);
+  const imhoffInline = document.getElementById('imhoffStatusInline');
+  if (imhoffClass) {
+    const alertType = imhoffClass.badge === 'safe' ? 'success' : imhoffClass.badge === 'critical' ? 'danger' : 'warning';
+    imhoffInline.className = `alert alert-${alertType}`;
+    imhoffInline.textContent = imhoffClass.msg;
+  } else {
+    imhoffInline.className = 'alert alert-info';
+    imhoffInline.textContent = 'Enter Imhoff reading above';
+  }
+  setImhoffCone(imhoffVal);
 
   document.getElementById('biomassEst').textContent = (biomassKg >= 1000 ? (biomassKg/1000).toFixed(2) + ' tonnes' : biomassKg.toFixed(1) + ' kg');
   document.getElementById('feedRate').textContent = feedRate.toFixed(1);
@@ -1776,7 +1907,7 @@ function calculate(showToast) {
 
   document.getElementById('alkCurrent').textContent = alk.toFixed(0) + ' mg/L';
   document.getElementById('alkDeficit').textContent = alkDeficit.toFixed(0) + ' mg/L';
-  document.getElementById('alkDose').textContent = naHco3Kg.toFixed(2) + ' kg NaHCO₃';
+  document.getElementById('alkDose').textContent = naHco3Kg.toFixed(2) + ' kg ' + limingAgent.name + alkDeficitNote;
   document.getElementById('alkMaint').textContent = alkMaint.toFixed(2) + ' kg/day';
   document.getElementById('alkLoss').textContent = alkLossPerDay.toFixed(1) + ' mg/L/day';
   setAlert('alkWarning', getAlkalinityAdvice(alk, alkDeficit, naHco3Kg, ph));
@@ -1816,7 +1947,7 @@ function calculate(showToast) {
 
   window.lastCalc = {
     timestamp: Date.now(),
-    inputs: { vol, sal, temp, ph, doVal, tan, no2, alk, density, awg, survival, feed, protein, feedCN, excretion: excretion*100, cnTarget, sourceKey, price, currency, targetAlk, aeration },
+    inputs: { vol, sal, temp, ph, doVal, tan, no2, alk, density, awg, survival, feed, protein, feedCN, excretion: excretion*100, cnTarget, sourceKey, price, currency, targetAlk, aeration, limingKey },
     results: { sourceKg, costToday, nWater, nh3, biomassKg, overall, naHco3Kg }
   };
 
@@ -1990,13 +2121,94 @@ function updateCostInterpretation(costToday, costBicarb, costTotal, costPerKgShr
   interpText.innerHTML = html;
 }
 
-function setGauge(id, value, classObj) {
-  document.getElementById('g-'+id+'-val').textContent = value;
-  const statusEl = document.getElementById('g-'+id+'-status');
+/* Arc path helper */
+function polarXY(cx, cy, r, angleDeg) {
+  const rad = (angleDeg - 90) * Math.PI / 180;
+  return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
+}
+function arcPath(cx, cy, r, startDeg, endDeg) {
+  const s = polarXY(cx, cy, r, startDeg);
+  const e = polarXY(cx, cy, r, endDeg);
+  const delta = ((endDeg - startDeg) + 360) % 360;
+  if (delta < 0.5) return `M ${s.x.toFixed(2)} ${s.y.toFixed(2)}`;
+  const large = delta > 180 ? 1 : 0;
+  return `M ${s.x.toFixed(2)} ${s.y.toFixed(2)} A ${r} ${r} 0 ${large} 1 ${e.x.toFixed(2)} ${e.y.toFixed(2)}`;
+}
+
+function setGauge(id, displayValue, classObj) {
+  const numVal = parseFloat(displayValue);
+  const max    = GAUGE_MAX[id] || 1;
+  const frac   = Math.min(1, Math.max(0, numVal / max));
+  const offset = GAUGE_ARC * (1 - frac);
+  const color  = BADGE_COLOR[classObj.badge] || '#10b981';
+  const fill = document.getElementById('gfill-' + id);
+  fill.style.strokeDashoffset = offset;
+  fill.setAttribute('stroke', color);
+  document.getElementById('g-' + id + '-val').textContent = displayValue.replace(' mg/L', '');
+  const statusEl = document.getElementById('g-' + id + '-status');
   statusEl.textContent = classObj.level;
-  statusEl.className = 'gauge-status badge-status badge-' + classObj.badge;
-  const gauge = document.getElementById('g-'+id);
-  gauge.className = 'gauge gauge-' + classObj.badge;
+  statusEl.setAttribute('fill', color);
+}
+
+/* C:N dial — range 6–24, arc start 250°, sweep 220° (shrimp optimal: 15–20) */
+const CN_MIN = 6, CN_MAX = 24, CN_SWEEP = 220, CN_START = 250;
+
+function setCnDial(cnTarget) {
+  const frac   = Math.min(1, Math.max(0, (cnTarget - CN_MIN) / (CN_MAX - CN_MIN)));
+  const offset = GAUGE_ARC * (1 - frac);
+  document.getElementById('cn-fill-arc').style.strokeDashoffset = offset;
+  const optStart = CN_START + ((15 - CN_MIN) / (CN_MAX - CN_MIN)) * CN_SWEEP;
+  const optEnd   = CN_START + ((20 - CN_MIN) / (CN_MAX - CN_MIN)) * CN_SWEEP;
+  document.getElementById('cn-optimal-arc').setAttribute('d', arcPath(60, 62, 48, optStart, optEnd));
+  document.getElementById('cn-dial-val').textContent = cnTarget + ':1';
+  const zoneEl = document.getElementById('cn-dial-zone');
+  if (cnTarget >= 15 && cnTarget <= 20) {
+    zoneEl.textContent = 'OPTIMAL (shrimp BFT)';
+    zoneEl.setAttribute('fill', '#38bdf8');
+  } else if (cnTarget < 15) {
+    zoneEl.textContent = 'Below optimal — low floc';
+    zoneEl.setAttribute('fill', '#f59e0b');
+  } else {
+    zoneEl.textContent = 'Above optimal — high cost';
+    zoneEl.setAttribute('fill', '#f59e0b');
+  }
+}
+
+/* Imhoff cone — optimal for shrimp BFT: 20–50 mL/L */
+function classifyImhoff(mL) {
+  if (!isFinite(mL) || mL < 0) return null;
+  if (mL > 60)  return { level: 'CRITICAL', badge: 'critical', msg: `${mL} mL/L — stop carbon, remove solids urgently. Risk of O₂ depletion and gill clogging.` };
+  if (mL > 50)  return { level: 'HIGH',     badge: 'warning',  msg: `${mL} mL/L — high. Reduce carbon dose 20-25% and increase solids removal.` };
+  if (mL >= 20) return { level: 'OPTIMAL',  badge: 'safe',     msg: `${mL} mL/L — optimal for shrimp BFT (20–50 mL/L). Maintain current dosing.` };
+  if (mL >= 10) return { level: 'LOW',      badge: 'elevated', msg: `${mL} mL/L — building. Increase C:N to 15–20:1 to stimulate floc growth.` };
+  return           { level: 'TOO LOW',   badge: 'critical', msg: `${mL} mL/L — floc not established. Use C:N 20:1 and verify aeration keeps solids suspended.` };
+}
+
+function setImhoffCone(val) {
+  const SCALE = 70, H_TOTAL = 130;
+  const fill   = document.getElementById('imhoff-fill');
+  const valTxt = document.getElementById('imhoff-cone-val');
+  const lvlTxt = document.getElementById('imhoff-cone-level');
+  const advTxt = document.getElementById('imhoff-cone-advice');
+  if (!isFinite(val) || val < 0) {
+    fill.setAttribute('y', '135'); fill.setAttribute('height', '0');
+    valTxt.textContent = '—'; lvlTxt.textContent = 'No reading';
+    advTxt.textContent = 'Enter Imhoff reading in the Inputs tab.';
+    return;
+  }
+  const frac  = Math.min(1, val / SCALE);
+  const fillH = frac * H_TOTAL;
+  const fillY = 135 - fillH;
+  const color = val > 60 ? '#ef4444' : val > 50 ? '#f97316' : val >= 20 ? '#10b981' : val >= 10 ? '#f59e0b' : '#ef4444';
+  fill.setAttribute('y', fillY.toFixed(1));
+  fill.setAttribute('height', fillH.toFixed(1));
+  fill.setAttribute('fill', color);
+  fill.setAttribute('opacity', '0.55');
+  valTxt.textContent = val + ' mL/L';
+  valTxt.setAttribute('fill', color);
+  const cls = classifyImhoff(val);
+  lvlTxt.textContent = cls ? cls.level : '—';
+  advTxt.textContent = cls ? cls.msg   : '';
 }
 
 function setAlert(id, advice) {
@@ -2221,7 +2433,8 @@ function loadSession(idx) {
   const s = history[idx];
   if (!s) return;
   Object.entries(s.inputs).forEach(([k, v]) => {
-    const el = document.getElementById(k === 'doVal' ? 'do' : k === 'sourceKey' ? 'carbonSource' : k === 'cnTarget' ? 'cnRatio' : k);
+    const elId = k === 'doVal' ? 'do' : k === 'sourceKey' ? 'carbonSource' : k === 'cnTarget' ? 'cnRatio' : k === 'limingKey' ? 'limingAgent' : k;
+    const el = document.getElementById(elId);
     if (el) el.value = v;
   });
   calculate(true);
@@ -2249,33 +2462,65 @@ function clearHistory() {
    ========================================================= */
 function drawTrendChart(history) {
   const svg = document.getElementById('trendChart');
-  if (!history.length) { svg.innerHTML = '<text x="300" y="50" text-anchor="middle" fill="#94a3b8" font-size="11">No data yet</text>'; return; }
+  if (!history.length) {
+    svg.innerHTML = '<text x="300" y="50" text-anchor="middle" fill="#94a3b8" font-size="11">No data yet — save a session to start tracking</text>';
+    return;
+  }
   const data = history.slice(0, 14).reverse();
-  const W = 600, H = 90, P = 6;
-  const maxTan = Math.max(0.5, ...data.map(d => d.inputs.tan));
-  const maxNo2 = Math.max(0.5, ...data.map(d => d.inputs.no2));
-  const maxDose = Math.max(0.5, ...data.map(d => d.results.sourceKg));
-
-  const stepX = data.length > 1 ? (W - 2*P) / (data.length - 1) : 0;
-  function path(arr, maxVal, color) {
-    if (!arr.length || maxVal <= 0) return '';
-    const pts = arr.map((v, i) => `${P + i*stepX},${H - P - (v / maxVal) * (H - 2*P)}`).join(' L ');
-    return `<path d="M ${pts}" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`;
-  }
-  function dots(arr, maxVal, color) {
-    if (maxVal <= 0) return '';
-    return arr.map((v, i) => `<circle cx="${P + i*stepX}" cy="${H - P - (v / maxVal) * (H - 2*P)}" r="2.5" fill="${color}"/>`).join('');
-  }
-
-  const tanArr = data.map(d => d.inputs.tan);
-  const no2Arr = data.map(d => d.inputs.no2);
+  const W = 600, H = 90, PL = 32, PR = 8, PT = 6, PB = 16;
+  const cW = W - PL - PR, cH = H - PT - PB;
+  const tanArr  = data.map(d => d.inputs.tan);
+  const no2Arr  = data.map(d => d.inputs.no2);
   const doseArr = data.map(d => d.results.sourceKg);
-
+  const maxTan  = Math.max(2, ...tanArr);
+  const maxNo2  = Math.max(1, ...no2Arr);
+  const maxDose = Math.max(1, ...doseArr);
+  const n = data.length;
+  const stepX = n > 1 ? cW / (n - 1) : 0;
+  function xOf(i)       { return PL + i * stepX; }
+  function yOf(v, maxV) { return PT + cH - (v / maxV) * cH; }
+  function smoothPath(arr, maxV) {
+    if (arr.length < 2) return `M ${xOf(0).toFixed(1)} ${yOf(arr[0], maxV).toFixed(1)}`;
+    let d = `M ${xOf(0).toFixed(1)} ${yOf(arr[0], maxV).toFixed(1)}`;
+    for (let i = 1; i < arr.length; i++) {
+      const x0 = xOf(i-1), y0 = yOf(arr[i-1], maxV);
+      const x1 = xOf(i),   y1 = yOf(arr[i],   maxV);
+      const cx = (x0 + x1) / 2;
+      d += ` C ${cx.toFixed(1)} ${y0.toFixed(1)}, ${cx.toFixed(1)} ${y1.toFixed(1)}, ${x1.toFixed(1)} ${y1.toFixed(1)}`;
+    }
+    return d;
+  }
+  function areaPath(arr, maxV) {
+    const line = smoothPath(arr, maxV);
+    const lastX = xOf(arr.length - 1).toFixed(1);
+    const baseY = (PT + cH).toFixed(1);
+    return `${line} L ${lastX} ${baseY} L ${PL} ${baseY} Z`;
+  }
+  const tanSafeY = yOf(THRESHOLDS.tan.safe,    maxTan);
+  const tanWarnY = yOf(THRESHOLDS.tan.warning,  maxTan);
+  const yTicks   = [0, Math.round(maxTan/2 * 10)/10, maxTan];
+  const yTicksSVG = yTicks.map(v =>
+    `<text x="${PL - 3}" y="${yOf(v, maxTan).toFixed(1)}" text-anchor="end" font-size="7" fill="#9ca3af" dominant-baseline="middle">${v}</text>`
+  ).join('');
+  const dateFirst = new Date(data[0].timestamp).toLocaleDateString([], { month:'short', day:'numeric' });
+  const dateLast  = new Date(data[n-1].timestamp).toLocaleDateString([], { month:'short', day:'numeric' });
+  const xLabels   = n > 1 ? `
+    <text x="${PL}" y="${H - 2}" font-size="7" fill="#9ca3af" text-anchor="start">${dateFirst}</text>
+    <text x="${W - PR}" y="${H - 2}" font-size="7" fill="#9ca3af" text-anchor="end">${dateLast}</text>
+  ` : '';
   svg.innerHTML = `
-    <line x1="${P}" y1="${H-P}" x2="${W-P}" y2="${H-P}" stroke="#e2e8f0" stroke-width="1"/>
-    ${path(tanArr, maxTan, '#dc2626')}${dots(tanArr, maxTan, '#dc2626')}
-    ${path(no2Arr, maxNo2, '#ea580c')}${dots(no2Arr, maxNo2, '#ea580c')}
-    ${path(doseArr, maxDose, '#0ea5e9')}${dots(doseArr, maxDose, '#0ea5e9')}
+    <line x1="${PL}" x2="${W-PR}" y1="${tanSafeY.toFixed(1)}" y2="${tanSafeY.toFixed(1)}" stroke="#10b981" stroke-width="0.7" stroke-dasharray="4,3" opacity="0.6"/>
+    <line x1="${PL}" x2="${W-PR}" y1="${tanWarnY.toFixed(1)}" y2="${tanWarnY.toFixed(1)}" stroke="#f97316" stroke-width="0.7" stroke-dasharray="4,3" opacity="0.6"/>
+    <text x="${W - PR - 2}" y="${tanSafeY - 2}" font-size="6" fill="#10b981" text-anchor="end">safe</text>
+    <text x="${W - PR - 2}" y="${tanWarnY - 2}" font-size="6" fill="#f97316" text-anchor="end">warn</text>
+    <path d="${areaPath(tanArr, maxTan)}" fill="#dc2626" opacity="0.08"/>
+    <path d="${smoothPath(tanArr,  maxTan)}"  fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="${smoothPath(no2Arr,  maxNo2)}"  fill="none" stroke="#f59e0b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="5,3"/>
+    <path d="${smoothPath(doseArr, maxDose)}" fill="none" stroke="#6366f1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.7"/>
+    ${tanArr.map((v,i) => `<circle cx="${xOf(i).toFixed(1)}" cy="${yOf(v, maxTan).toFixed(1)}" r="2.5" fill="#dc2626"/>`).join('')}
+    <line x1="${PL}" x2="${PL}" y1="${PT}" y2="${PT + cH}" stroke="#e5e7eb" stroke-width="0.8"/>
+    ${yTicksSVG}
+    ${xLabels}
   `;
 }
 
@@ -2369,6 +2614,8 @@ function resetDefaults() {
   document.getElementById('price').value = 0.50;
   document.getElementById('currency').value = 'USD';
   document.getElementById('targetAlk').value = 140;
+  document.getElementById('limingAgent').value = 'nahco3';
+  document.getElementById('imhoff').value = '';
   document.getElementById('aeration').value = 15;
   document.querySelectorAll('#stageChips .chip').forEach(c => c.classList.remove('active'));
   document.querySelector('#stageChips .chip[data-stage="growout"]').classList.add('active');
