@@ -1,0 +1,71 @@
+# =========================
+# Biofloc Calculator PWA
+# .htaccess for Apache/cPanel
+# =========================
+
+DirectoryIndex index.html
+Options -Indexes
+
+# -------------------------
+# Force HTTPS
+# -------------------------
+RewriteEngine On
+RewriteCond %{HTTPS} !=on
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# -------------------------
+# Correct MIME types
+# -------------------------
+AddType application/manifest+json .webmanifest
+AddType application/json .json
+AddType text/javascript .js
+AddType text/css .css
+AddType image/png .png
+AddType image/svg+xml .svg
+AddType image/x-icon .ico
+
+# -------------------------
+# Security headers
+# -------------------------
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+
+  # PWA / Service Worker: jangan cache sw.js terlalu lama
+  <FilesMatch "^sw\.js$">
+    Header set Cache-Control "no-cache, no-store, must-revalidate"
+    Header set Service-Worker-Allowed "/"
+  </FilesMatch>
+
+  # Manifest boleh cache singkat
+  <FilesMatch "^manifest\.json$">
+    Header set Cache-Control "public, max-age=3600"
+  </FilesMatch>
+
+  # HTML jangan cache terlalu lama supaya update cepat kebaca
+  <FilesMatch "\.html$">
+    Header set Cache-Control "no-cache, no-store, must-revalidate"
+  </FilesMatch>
+
+  # Icons/assets boleh cache lama
+  <FilesMatch "\.(png|jpg|jpeg|gif|svg|ico|webp)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+</IfModule>
+
+# -------------------------
+# Compression
+# -------------------------
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/plain text/css text/javascript application/javascript application/json application/manifest+json
+</IfModule>
+
+# -------------------------
+# Fallback untuk app static
+# Kalau akses path aneh, balik ke index.html
+# -------------------------
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.html [L]
