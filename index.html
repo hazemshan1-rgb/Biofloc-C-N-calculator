@@ -1396,8 +1396,13 @@
     <!-- Imhoff Cone Visual -->
     <div class="imhoff-wrap" id="imhoffConeWrap">
       <svg class="imhoff-svg" viewBox="0 0 120 150" aria-label="Imhoff cone">
-        <polygon points="10,5 110,5 80,135 40,135" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5"/>
-        <rect id="imhoff-fill" x="10" y="135" width="100" height="0" fill="#10b981" opacity="0.6"/>
+        <defs>
+          <clipPath id="cone-clip">
+            <polygon points="10,5 110,5 80,135 40,135"/>
+          </clipPath>
+        </defs>
+        <polygon points="10,5 110,5 80,135 40,135" fill="#f1f5f9" stroke="none"/>
+        <rect id="imhoff-fill" x="0" y="135" width="120" height="0" fill="#10b981" opacity="0.55" clip-path="url(#cone-clip)"/>
         <polygon points="10,5 110,5 80,135 40,135" fill="none" stroke="#64748b" stroke-width="1.5"/>
         <line x1="10" y1="5" x2="110" y2="5" stroke="#94a3b8" stroke-width="0.8" stroke-dasharray="3,2"/>
         <line x1="22" y1="44" x2="98" y2="44" stroke="#94a3b8" stroke-width="0.5" stroke-dasharray="2,2" opacity="0.5"/>
@@ -1439,7 +1444,7 @@
       <span class="metric-value" id="costToday">0.00</span>
     </div>
     <div class="metric-row">
-      <span class="metric-label">NaHCO₃ today (correction + maintenance)</span>
+      <span class="metric-label">Liming agent (correction + maintenance)</span>
       <span class="metric-value" id="costBicarb">0.00</span>
     </div>
     <div class="metric-row">
@@ -1789,17 +1794,17 @@ function calculate(showToast) {
   const limingKey = document.getElementById('limingAgent').value;
   const limingAgent = LIMING_AGENTS[limingKey];
   const alkDeficit = Math.max(0, targetAlk - alk);
-  const effectiveDeficit = Math.min(alkDeficit, limingAgent.maxDosePerApp === Infinity ? alkDeficit : limingAgent.maxDosePerApp * vol);
-  const naHco3Kg = effectiveDeficit * vol * limingAgent.factor / 1000;
-  const alkDeficitNote = (limingKey === 'caoh2' && alkDeficit > limingAgent.maxDosePerApp)
-    ? ` (split — total deficit ${alkDeficit.toFixed(0)} mg/L, apply in ${Math.ceil(alkDeficit / 10)} doses)` : '';
+  const rawLimingKg = alkDeficit * vol * limingAgent.factor / 1000;
+  const limingDoseKg = limingAgent.maxDosePerApp !== Infinity
+    ? Math.min(rawLimingKg, limingAgent.maxDosePerApp) : rawLimingKg;
+  const alkDeficitNote = (limingKey === 'caoh2' && limingDoseKg >= limingAgent.maxDosePerApp && rawLimingKg > limingAgent.maxDosePerApp)
+    ? ` (split — total ${rawLimingKg.toFixed(1)} kg, apply in ${Math.ceil(rawLimingKg / limingAgent.maxDosePerApp)} doses)` : '';
   const alkLossPerDay = (nAssim * 3.57) / vol;
   const alkMaint = feed * 0.22;
 
   const respFrac = 0.50;
   const o2DemandKg = sourceKg * source.cod * respFrac;
   const peakHours = 8;
-  const o2DemandPerHour = o2DemandKg / peakHours;
   const o2DropMgL = (o2DemandKg * 1000) / (vol);
   const aeratorH = aeration > 0 ? o2DemandKg / aeration : 999;
   const cRespired = sourceKg * source.fraction * respFrac;
@@ -1831,8 +1836,9 @@ function calculate(showToast) {
   const actions = buildActionPlan(overall, tanClass, nh3Class, no2Class, doVal, alk, ph, sourceKg, source.name);
 
   const costToday = sourceKg * price;
-  const bicarbPrice = 0.40;
-  const costBicarb = (naHco3Kg + alkMaint) * bicarbPrice;
+  const limingPrices = { nahco3: 0.40, caco3: 0.15, caoh2: 0.25 };
+  const bicarbPrice = limingPrices[limingKey] || 0.40;
+  const costBicarb = (limingDoseKg + alkMaint) * bicarbPrice;
   const costTotal = costToday + costBicarb;
   const costPerKgShrimp = biomassKg > 0 ? costTotal / biomassKg : 0;
 
@@ -1907,10 +1913,10 @@ function calculate(showToast) {
 
   document.getElementById('alkCurrent').textContent = alk.toFixed(0) + ' mg/L';
   document.getElementById('alkDeficit').textContent = alkDeficit.toFixed(0) + ' mg/L';
-  document.getElementById('alkDose').textContent = naHco3Kg.toFixed(2) + ' kg ' + limingAgent.name + alkDeficitNote;
+  document.getElementById('alkDose').textContent = limingDoseKg.toFixed(2) + ' kg ' + limingAgent.name + alkDeficitNote;
   document.getElementById('alkMaint').textContent = alkMaint.toFixed(2) + ' kg/day';
   document.getElementById('alkLoss').textContent = alkLossPerDay.toFixed(1) + ' mg/L/day';
-  setAlert('alkWarning', getAlkalinityAdvice(alk, alkDeficit, naHco3Kg, ph));
+  setAlert('alkWarning', getAlkalinityAdvice(alk, alkDeficit, limingDoseKg, ph));
 
   document.getElementById('o2Demand').textContent = o2DemandKg.toFixed(2) + ' kg';
   document.getElementById('o2Drop').textContent = (o2DropMgL / peakHours).toFixed(2) + ' mg/L/h';
@@ -1940,7 +1946,7 @@ function calculate(showToast) {
   updateOverallInterpretation(overall, tan, nh3, no2, doVal, alk, ph, sourceKg, source.name, curSym, costToday);
   updateNitrogenInterpretation(cSupp, nRemain, nWater, correctionKg, nExcess, vol, cnTarget, feed, protein);
   updateToxicityInterpretation(nh3, nh3Margin, ph, temp, tan, sal);
-  updateAlkalinityInterpretation(alk, alkDeficit, naHco3Kg, ph, targetAlk);
+  updateAlkalinityInterpretation(alk, alkDeficit, limingDoseKg, ph, targetAlk);
   updateOxygenInterpretation(o2DemandKg, aeratorH, doVal, o2DropMgL/peakHours, sourceKg, source.name);
   updateBioflocInterpretation(biomassG, biomassMgL, flocProtein, sourceKg);
   updateCostInterpretation(costToday, costBicarb, costTotal, costPerKgShrimp, biomassKg, source.name);
@@ -1948,7 +1954,7 @@ function calculate(showToast) {
   window.lastCalc = {
     timestamp: Date.now(),
     inputs: { vol, sal, temp, ph, doVal, tan, no2, alk, density, awg, survival, feed, protein, feedCN, excretion: excretion*100, cnTarget, sourceKey, price, currency, targetAlk, aeration, limingKey },
-    results: { sourceKg, costToday, nWater, nh3, biomassKg, overall, naHco3Kg }
+    results: { sourceKg, costToday, nWater, nh3, biomassKg, overall, limingDoseKg }
   };
 
   if (showToast) showToastMessage('✓ Recalculated');
@@ -2055,14 +2061,14 @@ function updateToxicityInterpretation(nh3, nh3Margin, ph, temp, tan, sal) {
   interpText.innerHTML = html;
 }
 
-function updateAlkalinityInterpretation(alk, alkDeficit, naHco3Kg, ph, targetAlk) {
+function updateAlkalinityInterpretation(alk, alkDeficit, limingDoseKg, ph, targetAlk) {
   const interpText = document.getElementById('alkInterpText');
 
   let html = '';
   if (alk < THRESHOLDS.alkMin) {
     html = `<strong>CRITICAL: pH crash imminent.</strong> Alkalinity at ${alk} mg/L is below 80 mg/L. The system has virtually no buffering capacity. Any addition of acid (from bacterial respiration, feed, or rain) will cause pH to plummet below 7.0, stopping all bacterial activity and causing an ammonia spike. <strong>Add NaHCO₃ immediately</strong> — this is as urgent as high ammonia.`;
   } else if (alk < THRESHOLDS.alkWarning) {
-    html = `<strong>Low alkalinity warning.</strong> At ${alk} mg/L, buffering capacity is compromised. pH will swing widely between day (algae photosynthesis raises pH) and night (respiration lowers pH). These swings increase NH₃ toxicity during high-pH periods and reduce bacterial efficiency during low-pH periods. Add ${naHco3Kg.toFixed(2)} kg NaHCO₃ today and begin daily maintenance.`;
+    html = `<strong>Low alkalinity warning.</strong> At ${alk} mg/L, buffering capacity is compromised. pH will swing widely between day (algae photosynthesis raises pH) and night (respiration lowers pH). These swings increase NH₃ toxicity during high-pH periods and reduce bacterial efficiency during low-pH periods. Add ${limingDoseKg.toFixed(2)} kg liming agent today and begin daily maintenance.`;
   } else if (alk > targetAlk + 20) {
     html = `<strong>Alkalinity above target.</strong> While not harmful, excessive alkalinity (${alk} mg/L) combined with high pH can indicate excessive liming or low bacterial activity. Monitor for CaCO₃ precipitation (cloudy water). No correction needed, but verify pH stays below 8.5 to prevent NH₃ toxicity.`;
   } else {
@@ -2282,7 +2288,7 @@ function getOxygenAdvice(o2Kg, aeratorH, doVal, peakDrop) {
 /* =========================================================
    ACTION PLAN
    ========================================================= */
-function buildActionPlan(overall, tan, nh3, no2, doVal, alk, ph, doseKg, sourceName) {
+function buildActionPlan(overall, tanClass, nh3Class, no2Class, doVal, alk, ph, doseKg, sourceName) {
   const a = [];
   if (overall === "CRITICAL") {
     a.push("STOP feeding immediately. Resume at 50% only after parameters stabilise.");
@@ -2290,8 +2296,8 @@ function buildActionPlan(overall, tan, nh3, no2, doVal, alk, ph, doseKg, sourceN
       a.push("Maximise aeration NOW — every aerator at full power.");
       a.push("DO is below survival threshold — DO NOT dose carbon yet. Fix oxygen first (aeration + water exchange). Resume carbon only after DO recovers above 4.0 mg/L.");
     } else {
-      if (nh3.level === "CRITICAL") a.push("Begin emergency water exchange 20-30% with clean replacement water.");
-      if (no2.level === "CRITICAL") a.push("Dose chloride (NaCl) at 6:1 Cl:NO₂ ratio if salinity allows — protects against methemoglobinaemia.");
+      if (nh3Class.level === "CRITICAL") a.push("Begin emergency water exchange 20-30% with clean replacement water.");
+      if (no2Class.level === "CRITICAL") a.push("Dose chloride (NaCl) at 6:1 Cl:NO₂ ratio if salinity allows — protects against methemoglobinaemia.");
       a.push(`Apply double carbon dose: ${(doseKg*2).toFixed(2)} kg of ${sourceName} in 4 equal splits over 12 hours.`);
     }
     if (alk < 80) a.push(`Add NaHCO₃ to lift alkalinity to 140+ mg/L immediately.`);
@@ -2379,6 +2385,7 @@ document.querySelectorAll('#stageChips .chip').forEach(chip => {
       document.getElementById('cnRatio').value = preset.cnRatio;
       document.getElementById('excretion').value = preset.excretion;
       document.getElementById('targetAlk').value = preset.targetAlk;
+      if (preset.limingAgent) document.getElementById('limingAgent').value = preset.limingAgent;
       document.getElementById('stageDesc').textContent = preset.desc;
       calculate(false);
     }
@@ -2549,7 +2556,7 @@ function exportCSV() {
     ['C:N target', i.cnTarget, ''],
     ['Carbon source', CARBON_SOURCES[i.sourceKey].name, ''],
     ['Carbon dose', r.sourceKg.toFixed(3), 'kg/day'],
-    ['NaHCO₃ correction', r.naHco3Kg.toFixed(3), 'kg'],
+    ['Liming agent dose', r.limingDoseKg.toFixed(3), 'kg'],
     ['NH₃-N', r.nh3.toFixed(4), 'mg/L'],
     ['Standing biomass', r.biomassKg.toFixed(2), 'kg'],
     ['Daily cost', r.costToday.toFixed(2), CURRENCY_SYMBOLS[i.currency] || '$'],
@@ -2584,7 +2591,8 @@ function loadFromHash() {
   if (!window.location.hash) return;
   const params = new URLSearchParams(window.location.hash.slice(1));
   params.forEach((v, k) => {
-    const el = document.getElementById(k === 'doVal' ? 'do' : k === 'sourceKey' ? 'carbonSource' : k === 'cnTarget' ? 'cnRatio' : k);
+    const elId = k === 'doVal' ? 'do' : k === 'sourceKey' ? 'carbonSource' : k === 'cnTarget' ? 'cnRatio' : k === 'limingKey' ? 'limingAgent' : k;
+    const el = document.getElementById(elId);
     if (el) el.value = v;
   });
 }
@@ -2638,7 +2646,7 @@ function showToastMessage(msg) {
 /* =========================================================
    LIVE INPUT BINDINGS
    ========================================================= */
-['vol','sal','temp','ph','do','tan','no2','alk','density','awg','survival','feed','protein','feedCN','excretion','cnRatio','carbonSource','price','currency','targetAlk','aeration'].forEach(id => {
+['vol','sal','temp','ph','do','tan','no2','alk','density','awg','survival','feed','protein','feedCN','excretion','cnRatio','carbonSource','price','currency','targetAlk','limingAgent','imhoff','aeration'].forEach(id => {
   const el = document.getElementById(id);
   if (!el) return;
   el.addEventListener('input', () => calculate(false));
