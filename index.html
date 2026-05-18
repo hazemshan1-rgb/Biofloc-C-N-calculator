@@ -6,6 +6,12 @@
 <meta name="theme-color" content="#0c4a6e">
 <meta name="description" content="Professional C:N ratio calculator for shrimp biofloc systems. Verified formulas for carbon dosing, nitrogen balance, NH3 toxicity, alkalinity and oxygen demand.">
 <title>Biofloc C:N Calculator Pro v3.0 | Hazem Shannak</title>
+<link rel="manifest" href="manifest.json">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Biofloc Calc">
+<link rel="apple-touch-icon" href="icon-192.png">
 <style>
   :root {
     --primary: #0c4a6e;
@@ -691,9 +697,83 @@
   .footer-note { text-align: center; padding: 18px 12px; color: var(--text-light); font-size: 0.72rem; line-height: 1.6; }
   .ref-link { color: var(--primary); text-decoration: none; }
   .ref-link:hover { text-decoration: underline; }
+
+  /* ===== WELCOME SPLASH ===== */
+  @keyframes splashIn { from { opacity: 0; transform: scale(0.92); } to { opacity: 1; transform: scale(1); } }
+  @keyframes splashOut { from { opacity: 1; transform: scale(1); } to { opacity: 0; transform: scale(0.95); } }
+  @keyframes fadeInUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes cardEntrance { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+  #welcome-splash {
+    position: fixed; inset: 0; z-index: 9999;
+    background: linear-gradient(160deg, var(--primary-dark) 0%, var(--primary) 55%, #0e7490 100%);
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  #welcome-splash.hiding {
+    animation: splashOut 0.35s ease-in forwards;
+    pointer-events: none;
+  }
+  .splash-card {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.18);
+    backdrop-filter: blur(16px);
+    border-radius: 24px;
+    padding: 44px 32px 36px;
+    max-width: 380px; width: 100%;
+    text-align: center;
+    box-shadow: 0 32px 80px rgba(0,0,0,0.4);
+    animation: splashIn 0.45s cubic-bezier(0.16,1,0.3,1) forwards;
+  }
+  .splash-logo { font-size: 3.6rem; margin-bottom: 16px; display: block; animation: fadeInUp 0.5s 0.15s both; }
+  .splash-title { font-size: 1.45rem; font-weight: 800; color: white; margin-bottom: 6px; letter-spacing: -0.4px; animation: fadeInUp 0.5s 0.22s both; }
+  .splash-sub { font-size: 0.82rem; color: rgba(255,255,255,0.72); margin-bottom: 10px; animation: fadeInUp 0.5s 0.28s both; }
+  .splash-badges { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 28px; animation: fadeInUp 0.5s 0.34s both; }
+  .splash-badge {
+    background: rgba(255,255,255,0.14); color: rgba(255,255,255,0.9);
+    font-size: 0.68rem; font-weight: 700; padding: 4px 10px;
+    border-radius: 999px; letter-spacing: 0.3px;
+  }
+  .splash-btn {
+    width: 100%; padding: 15px;
+    background: white; color: var(--primary-dark);
+    border: none; border-radius: 12px;
+    font-size: 1rem; font-weight: 800; cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+    animation: fadeInUp 0.5s 0.4s both;
+  }
+  .splash-btn:hover { transform: translateY(-1px); box-shadow: 0 8px 28px rgba(0,0,0,0.3); }
+  .splash-btn:active { transform: scale(0.98); }
+  .splash-footer { margin-top: 18px; font-size: 0.67rem; color: rgba(255,255,255,0.45); animation: fadeInUp 0.5s 0.46s both; }
+
+  /* ===== ENTRANCE ANIMATIONS ===== */
+  .card { animation: cardEntrance 0.4s cubic-bezier(0.16,1,0.3,1) both; }
+  .card:nth-child(1) { animation-delay: 0.05s; }
+  .card:nth-child(2) { animation-delay: 0.1s; }
+  .card:nth-child(3) { animation-delay: 0.15s; }
+  .card:nth-child(4) { animation-delay: 0.2s; }
+  .card:nth-child(5) { animation-delay: 0.25s; }
+  .tab-content.active .card { animation-name: cardEntrance; }
 </style>
 </head>
 <body>
+
+<!-- Welcome Splash -->
+<div id="welcome-splash">
+  <div class="splash-card">
+    <span class="splash-logo">🦐</span>
+    <div class="splash-title">Biofloc C:N Calculator</div>
+    <div class="splash-sub">Shrimp · Pro v3.0 · Hazem Shannak</div>
+    <div class="splash-badges">
+      <span class="splash-badge">✓ Research-backed</span>
+      <span class="splash-badge">✓ Offline-ready</span>
+      <span class="splash-badge">✓ Free forever</span>
+    </div>
+    <button class="splash-btn" id="splash-start-btn">Start Calculator →</button>
+    <div class="splash-footer">Carbon dosing · NH₃ toxicity · Alkalinity · Oxygen demand</div>
+  </div>
+</div>
 
 <!-- Top Bar -->
 <header class="topbar">
@@ -2326,6 +2406,31 @@ window.addEventListener('load', () => {
   calculate(false);
   renderHistory();
 });
+
+/* =========================================================
+   WELCOME SPLASH
+   ========================================================= */
+(function () {
+  const splash = document.getElementById('welcome-splash');
+
+  function dismissSplash() {
+    splash.classList.add('hiding');
+    splash.addEventListener('animationend', () => {
+      splash.style.display = 'none';
+    }, { once: true });
+    localStorage.setItem('shrimpapp_welcomed', '1');
+  }
+
+  if (localStorage.getItem('shrimpapp_welcomed')) {
+    splash.style.display = 'none';
+  }
+
+  document.getElementById('splash-start-btn').addEventListener('click', dismissSplash);
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js');
+  }
+})();
 </script>
 </body>
 </html>
